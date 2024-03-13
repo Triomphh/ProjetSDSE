@@ -8,6 +8,7 @@ public class GestionCompte extends UnicastRemoteObject implements ICompte {
         super();
     }
     public boolean creerCompte(String pseudo, String mdp) throws RemoteException {
+        
         return(true);
     }
 
