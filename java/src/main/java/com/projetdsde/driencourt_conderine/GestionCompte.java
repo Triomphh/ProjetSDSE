@@ -1,4 +1,4 @@
-package projetdsde;
+package java.src.main.java.com.projetdsde.driencourt_conderine;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
