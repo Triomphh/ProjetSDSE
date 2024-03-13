@@ -1,8 +1,11 @@
 /*
     À faire :
         - ouvrir une connexion TCP
-            * créer socket TCP ( serveur )   X
-            * attendre les connexions        .
+            * créer socket TCP ( serveur )                X
+            * Configurer le nbr de connexions pendantes   X
+            * attendre les connexions                     .
+                . 1 processus par client                  . 
+            * 
 
 */
 
@@ -24,7 +27,7 @@ int init( int port )
 {
     static struct sockaddr_in addr_serveur;
     static struct sockaddr_in addr_client;
-    int lg_addr;
+    int addrlen;
     int socket_ecoute, socket_service;
 
     // Création socket TCP d'écoute (serveur)
@@ -38,11 +41,15 @@ int init( int port )
     }
 
     // Attente de connexion client
-    lg_addr = sizeof( addr_client ); // ?
+    addrlen = sizeof( addr_client ); // ?
     while( 1 )
     {
-        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &lg_addr );
-        
+        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );
+        if ( fork() == 0 ) // Création d'un processus par client
+        {
+            close( socket_ecoute ); // Pour éviter les duplicatas ?
+            // ...fonction qui traite
+        }
     }
 
     return 0;
