@@ -47,7 +47,7 @@ int init( int port )
         socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );
         if ( fork() == 0 ) // Création d'un processus par client
         {
-            close( socket_ecoute ); // Pour éviter les duplicatas ?
+            close( socket_ecoute ); 
             // ...fonction qui traite la communication avec le client
 			// traiter();
 			exit( 0 );
