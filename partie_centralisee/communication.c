@@ -27,14 +27,14 @@ int init( int port )
 {
     static struct sockaddr_in addr_serveur;
     static struct sockaddr_in addr_client;
-    int addrlen;
+    socklen_t addrlen;
     int socket_ecoute, socket_service;
 
     // Création socket TCP d'écoute (serveur)
     socket_ecoute = creerSocketTCP( port );
 
     // Configurer le nombre maximum de connexions pendantes
-    if ( listen( socket_ecoute, 10 ) == -1 );
+    if ( listen( socket_ecoute, 5 ) == -1 )
     {
         perror( "ERREUR listen()" );
         return -1;
@@ -48,8 +48,11 @@ int init( int port )
         if ( fork() == 0 ) // Création d'un processus par client
         {
             close( socket_ecoute ); // Pour éviter les duplicatas ?
-            // ...fonction qui traite
+            // ...fonction qui traite la communication avec le client
+			// traiter();
+			exit( 0 );
         }
+		close( socket_service );
     }
 
     return 0;
