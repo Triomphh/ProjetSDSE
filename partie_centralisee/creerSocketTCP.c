@@ -20,7 +20,8 @@ int creerSocketTCP ( int port ) {
 	}
 
 	// Liaison de la socket sur le port local
-	bzero( (char * )&addr_local, sizeof( addr_local ) );
+	// bzero( (char * )&addr_local, sizeof( addr_local ) );
+	memset( (char *)&addr_local, 0, sizeof( addr_local ) ); // memset au lieu de bzero
 	addr_local.sin_family = AF_INET;
 	addr_local.sin_port = htons( port );
 	if ( bind( sock, (struct sockaddr *)&addr_local, sizeof( addr_local ) ) == -1 )
