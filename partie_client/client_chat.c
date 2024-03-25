@@ -29,26 +29,42 @@ int connexion( char *nom_serveur, int port )
 	static struct sockaddr_in addr_serveur; // Adresse de la socket côté serveur
 	int sock;                               // Descripteur de la socket
 	socklen_t addrlen;                      // Taille de l'adresse de la socket
-	char *msg; 								// Message à envoyer
 	
+
 	// Création d'une socket TCP
-	sock = creerSocketTCP( port );
+	sock = creerSocketTCP( port );																				// Création d'une socket
+
 
 	// Récupération identifiant du serveur
 	serveur_host = gethostbyname( nom_serveur );
 	if ( serveur_host == NULL )
 	{
 		perror( "Erreur lors de la récupération de l'identifiant serveur." );
-		exit( 1 );
+		exit( EXIT_FAILURE );
 	}
+
 	
+	// Copie de l'@ IP du serveur (serveur_host) dans la structure de l'adresse de la socket (addr_serveur)
+	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr, serveur_host->h_length );
+
+	// Connexion de la socket client locale à la socket côté serveur
+	if ( connect(sock, (struct sockaddr *)&addr_serveur, sizeof(struct sockaddr_in)) == -1 )					// Connexion de la socket à la partie serveur (socket serveur)
+	{
+		perror( "Erreur lors de la connection au serveur. " );
+		close( sock );
+		exit( EXIT_FAILURE );
+	}
+
 
 	// ...fermer la socket
-	return 0;
+	
+
+	return sock;
 }
 
 
-void envoyerMessage( char* msg )
+// Fonction permettant d'envoyer un message sur le serveur connecté
+void envoyerMessage( char* msg )																				// Une fois connecté on communique avec le serveur, grâce à la socket
 {
 
 }

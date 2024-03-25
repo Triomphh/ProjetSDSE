@@ -30,7 +30,7 @@ int init( int port )
     int socket_ecoute, socket_service;
 
     // Création socket TCP d'écoute (serveur)
-    socket_ecoute = creerSocketTCP( port );
+    socket_ecoute = creerSocketTCP( port );															// Création de socket serveur sur un port précis
 
     // Configurer le nombre maximum de connexions pendantes
     if ( listen( socket_ecoute, 5 ) == -1 )
@@ -41,9 +41,9 @@ int init( int port )
 
     // Attente de connexion client
     addrlen = sizeof( addr_client ); // ?
-    while( 1 )
+    while( 1 )																						// Attente de connexion du client sur la socket serveur
     {
-        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );
+        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );		// La connexion du client renvoit une socket de service pour le client
         if ( fork() == 0 ) // Création d'un processus par client
         {
             close( socket_ecoute ); 
