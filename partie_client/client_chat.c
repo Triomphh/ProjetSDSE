@@ -22,7 +22,8 @@
 #include "../fonctions/creerSocketTCP.h"
 
 
-int communication( char *nom_serveur, int port )
+// Fonction qui permet de connecter le client au serveur choisit 
+int connexion( char *nom_serveur, int port )
 {
 	struct hostent *serveur_host;           // Identifiant de la machine serveur
 	static struct sockaddr_in addr_serveur; // Adresse de la socket côté serveur
@@ -41,12 +42,13 @@ int communication( char *nom_serveur, int port )
 		exit( 1 );
 	}
 	
-	// Création de l'identifiant de la socket d'écoute du serveur
-	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr, serveur_host->h_length );
-
-	// Envoi du message ?
-
 
 	// ...fermer la socket
 	return 0;
+}
+
+
+void envoyerMessage( char* msg )
+{
+
 }
