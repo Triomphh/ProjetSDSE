@@ -19,7 +19,7 @@
 #include <netinet/in.h>
 #include <string.h>
 
-#include "../creerSocketTCP.h" // marche pas trop relou en ft
+#include "../fonctions/creerSocketTCP.h"
 
 
 int communication( char *nom_serveur, int port )
@@ -40,6 +40,9 @@ int communication( char *nom_serveur, int port )
 		perror( "Erreur lors de la récupération de l'identifiant serveur." );
 		exit( 1 );
 	}
+	
+	// Création de l'identifiant de la socket d'écoute du serveur
+	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr, serveur_host->h_length );
 
 	// Envoi du message ?
 

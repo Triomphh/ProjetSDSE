@@ -17,7 +17,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 
-#include "creerSocketTCP.h"
+#include "../fonctions/creerSocketTCP.h"
 
 #define TAILLEBUF 20
 

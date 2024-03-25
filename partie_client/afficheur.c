@@ -1,0 +1,3 @@
+/*
+	Afficheur message du client
+*/
