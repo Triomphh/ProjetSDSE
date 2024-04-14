@@ -7,7 +7,10 @@
 #include <netinet/in.h>
 #include <string.h>
 
-int creerSocketTCP ( int port ) {
+
+
+int creerSocketTCP ( int port ) 
+{
 	static struct sockaddr_in addr_local; // Adresse de la socket côté locale
 	int sock; // Descripteur de la socket locale
 
@@ -16,7 +19,7 @@ int creerSocketTCP ( int port ) {
 	if ( sock == -1 )
 	{
 		perror( "Erreur lors de la création de la socket." );
-		exit( 1 );
+		exit( EXIT_FAILURE );
 	}
 
 	// Liaison de la socket sur le port local
@@ -27,7 +30,7 @@ int creerSocketTCP ( int port ) {
 	if ( bind( sock, (struct sockaddr *)&addr_local, sizeof( addr_local ) ) == -1 )
 	{
 		perror( "Erreur lors de la liaison de la socket." );
-		exit( 1 );
+		exit( EXIT_FAILURE );
 	}
 
 	return sock;

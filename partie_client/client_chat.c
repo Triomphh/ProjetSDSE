@@ -1,12 +1,5 @@
 /*
- 	Questionnements:
-		- Une fonction envoyerMessage( msg ) + une fonction connexion( serveur )     ou     les deux en même temps dans la même fonction      ?
-		- 
-
-	À faire:
-		- envoyerMessage()
-		- recevoirMessages() ou afficherMessage()
-		- connexion( serveur ) ?
+    cmd compilation : clear; gcc -o client client_chat.c; ./client localhost 4006
 */
 
 #include <stdio.h>
@@ -19,10 +12,12 @@
 #include <netinet/in.h>
 #include <string.h>
 
-#include "../fonctions/creerSocketTCP.h"
+#define TAILLEBUF 1024
 
 
-// Fonction qui permet de connecter le client au serveur choisit 
+
+
+// Fonction qui permet de connecter le client au serveur choisi
 int connexion( char *nom_serveur, int port )
 {
 	struct hostent *serveur_host;           // Identifiant de la machine serveur
@@ -32,7 +27,11 @@ int connexion( char *nom_serveur, int port )
 	
 
 	// Création d'une socket TCP
-	sock = creerSocketTCP( port );																				// Création d'une socket
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1) {
+        perror("Erreur lors de la création de la socket client");
+        exit(EXIT_FAILURE);
+    }
 
 
 	// Récupération identifiant du serveur
@@ -45,7 +44,7 @@ int connexion( char *nom_serveur, int port )
 
 	
 	// Copie de l'@ IP du serveur (serveur_host) dans la structure de l'adresse de la socket (addr_serveur)
-	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr, serveur_host->h_length );
+	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr_list[0], serveur_host->h_length );
 
 	// Connexion de la socket client locale à la socket côté serveur
 	if ( connect(sock, (struct sockaddr *)&addr_serveur, sizeof(struct sockaddr_in)) == -1 )					// Connexion de la socket à la partie serveur (socket serveur)
@@ -54,17 +53,48 @@ int connexion( char *nom_serveur, int port )
 		close( sock );
 		exit( EXIT_FAILURE );
 	}
-
-
-	// ...fermer la socket
 	
 
 	return sock;
 }
 
 
-// Fonction permettant d'envoyer un message sur le serveur connecté
-void envoyerMessage( char* msg )																				// Une fois connecté on communique avec le serveur, grâce à la socket
-{
 
+// Fonction permettant d'envoyer un message sur le serveur connecté
+void envoyerMessage( int sock, char* msg )                                                                      // Une fois connecté on communique avec le serveur, grâce à la socket
+{
+    if ( send( sock, msg, strlen(msg), 0 ) < 0 )
+    {
+        perror( "Erreur lors de l'envoi du message client->serveur" );
+        close( sock );
+        exit( EXIT_FAILURE );
+    }
+}
+
+
+
+
+int main( int argc, char **argv )
+{
+    if ( argc < 3 ) 
+    {
+        fprintf(stderr, "Nombre d'arguments insuffisants: %s <server_name> <port>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
+    printf( "%s    %d\n", argv[1], atoi(argv[2]) );
+    int sock = connexion( argv[1], atoi(argv[2]) );
+
+    if ( sock < 0 )
+    {
+        fprintf( stderr, "Erreur lors de la connexion au serveur.\n" );
+        return EXIT_FAILURE;
+    }
+
+    envoyerMessage( sock, "SALUT!" );
+
+    close( sock );
+
+
+    return 0;
 }
