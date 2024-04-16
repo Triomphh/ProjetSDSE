@@ -88,10 +88,10 @@ int init( int port )
     while( 1 )																						// Attente de connexion du client sur la socket serveur
     {
         printf( "ici1\n" ); // sudo netstat -tulnp | grep numéro_port
-        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, (socklen_t *)&addrlen );		// La connexion du client renvoit une socket de service pour le client
+        socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );		// La connexion du client renvoit une socket de service pour le client
         printf( "ici2\n" );
         if ( fork() == 0 ) // Création d'un processus par client
-        {
+        {                                                                                           // Processus fils :
             close( socket_ecoute ); 
 			traiter( socket_service );                                                              //      On traite la communication avec le client
 			exit( 0 );

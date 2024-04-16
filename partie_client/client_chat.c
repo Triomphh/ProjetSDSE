@@ -47,7 +47,7 @@ int connexion( char *nom_serveur, int port )
 	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr_list[0], serveur_host->h_length );
 
 	// Connexion de la socket client locale à la socket côté serveur
-	if ( connect(sock, (struct sockaddr *)&addr_serveur, sizeof(struct sockaddr_in)) == -1 )					// Connexion de la socket à la partie serveur (socket serveur)
+	if ( connect(sock, (struct sockaddr *)&addr_serveur, sizeof(addr_serveur)) == -1 )					// Connexion de la socket à la partie serveur (socket serveur)
 	{
 		perror( "Erreur lors de la connection au serveur. " );
 		close( sock );
