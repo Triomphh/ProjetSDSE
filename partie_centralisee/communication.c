@@ -74,7 +74,21 @@ int init( int port )
 
 
     // Création socket TCP d'écoute (serveur)
-    socket_ecoute = creerSocketTCP( port );															// Création de socket serveur sur un port précis
+    socket_ecoute = creerSocketTCP( &addr_serveur, port );
+    // socket_ecoute = socket( AF_INET, SOCK_STREAM, 0 );															// Création de socket serveur sur un port précis
+    // if ( socket_ecoute == -1 ) 
+    // {
+    //     perror("creation socket");
+    //     exit(1);
+    // }
+    // memset( (char *)&addr_serveur, 0, sizeof( addr_serveur ) );
+    // addr_serveur.sin_family = AF_INET;
+    // addr_serveur.sin_port = htons( port );
+    if ( bind( socket_ecoute, (struct sockaddr *)&addr_serveur, sizeof( addr_serveur ) ) == -1 )
+	{
+		perror( "Erreur lors de la liaison de la socket." );
+		exit( EXIT_FAILURE );
+	}
 
     // Configurer le nombre maximum de connexions pendantes
     if ( listen( socket_ecoute, 10 ) == -1 )
@@ -87,9 +101,7 @@ int init( int port )
     addrlen = sizeof( addr_client ); // ?
     while( 1 )																						// Attente de connexion du client sur la socket serveur
     {
-        printf( "ici1\n" ); // sudo netstat -tulnp | grep numéro_port
         socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );		// La connexion du client renvoit une socket de service pour le client
-        printf( "ici2\n" );
         if ( fork() == 0 ) // Création d'un processus par client
         {                                                                                           // Processus fils :
             close( socket_ecoute ); 

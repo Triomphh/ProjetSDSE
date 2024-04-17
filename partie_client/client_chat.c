@@ -1,5 +1,5 @@
 /*
-    cmd compilation : clear; gcc -o client client_chat.c; ./client localhost 4006
+    cmd compilation : clear; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c; ./client localhost 4006
 */
 
 #include <stdio.h>
@@ -11,6 +11,8 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
+
+#include "../fonctions/creerSocketTCP.h"
 
 #define TAILLEBUF 1024
 
@@ -27,11 +29,13 @@ int connexion( char *nom_serveur, int port )
 	
 
 	// Création d'une socket TCP
-	sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == -1) {
-        perror("Erreur lors de la création de la socket client");
-        exit(EXIT_FAILURE);
-    }
+	sock = creerSocketTCP( &addr_serveur, port );
+    // sock = socket( AF_INET, SOCK_STREAM, 0 );
+    // if ( sock == -1 ) 
+    // {
+    //     perror("creation socket");
+    //     exit(1);
+    // }
 
 
 	// Récupération identifiant du serveur
@@ -42,7 +46,9 @@ int connexion( char *nom_serveur, int port )
 		exit( EXIT_FAILURE );
 	}
 
-	
+	// memset( (char *)&addr_serveur, 0, sizeof( addr_serveur ) );
+    // addr_serveur.sin_family = AF_INET;
+    // addr_serveur.sin_port = htons( port );
 	// Copie de l'@ IP du serveur (serveur_host) dans la structure de l'adresse de la socket (addr_serveur)
 	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr_list[0], serveur_host->h_length );
 
