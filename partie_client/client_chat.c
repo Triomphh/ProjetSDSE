@@ -30,13 +30,6 @@ int connexion( char *nom_serveur, int port )
 
 	// Création d'une socket TCP
 	sock = creerSocketTCP( &addr_serveur, port );
-    // sock = socket( AF_INET, SOCK_STREAM, 0 );
-    // if ( sock == -1 ) 
-    // {
-    //     perror("creation socket");
-    //     exit(1);
-    // }
-
 
 	// Récupération identifiant du serveur
 	serveur_host = gethostbyname( nom_serveur );
@@ -46,9 +39,6 @@ int connexion( char *nom_serveur, int port )
 		exit( EXIT_FAILURE );
 	}
 
-	// memset( (char *)&addr_serveur, 0, sizeof( addr_serveur ) );
-    // addr_serveur.sin_family = AF_INET;
-    // addr_serveur.sin_port = htons( port );
 	// Copie de l'@ IP du serveur (serveur_host) dans la structure de l'adresse de la socket (addr_serveur)
 	memcpy( &addr_serveur.sin_addr.s_addr, serveur_host->h_addr_list[0], serveur_host->h_length );
 

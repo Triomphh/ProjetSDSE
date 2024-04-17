@@ -75,15 +75,6 @@ int init( int port )
 
     // Création socket TCP d'écoute (serveur)
     socket_ecoute = creerSocketTCP( &addr_serveur, port );
-    // socket_ecoute = socket( AF_INET, SOCK_STREAM, 0 );															// Création de socket serveur sur un port précis
-    // if ( socket_ecoute == -1 ) 
-    // {
-    //     perror("creation socket");
-    //     exit(1);
-    // }
-    // memset( (char *)&addr_serveur, 0, sizeof( addr_serveur ) );
-    // addr_serveur.sin_family = AF_INET;
-    // addr_serveur.sin_port = htons( port );
     if ( bind( socket_ecoute, (struct sockaddr *)&addr_serveur, sizeof( addr_serveur ) ) == -1 )
 	{
 		perror( "Erreur lors de la liaison de la socket." );
