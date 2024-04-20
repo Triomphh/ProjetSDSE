@@ -1,6 +1,11 @@
 /*
     cmd compilation : 
         clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c; ./client localhost 4006
+
+    Ressources : 
+        PIPES : 
+            - http://unixwiz.net/techtips/remap-pipe-fds.html
+            - https://tldp.org/LDP/lpg/node11.html
 */
 
 #include <stdio.h>
@@ -73,7 +78,7 @@ void recevoirMessage( int sock, int pipe_fd )
 {
     char buffer[ TAILLEBUF ];
     int nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );
-    printf( "%s", buffer );
+    // printf( "%s", buffer );
     if ( nbytes > 0 ) 
     {
         buffer[ nbytes ] = '\0';
@@ -84,11 +89,13 @@ void recevoirMessage( int sock, int pipe_fd )
 
 void deconnexion( int sock )
 {
-    if ( send(sock, "", 0, 0) < 0 )
-    {
-        perror( "Erreur lors de l'envoi du signal de déconnexion" );
-    }
+    // if ( send(sock, "", 0, 0) < 0 )
+    // {
+    //     perror( "Erreur lors de l'envoi du signal de déconnexion" );
+    // }
 
+    /* FERMER TOUS LES PROCESSUS CLIENTS */
+    
     close(sock);
     printf( "Vous avez été déconnecté." );
 }
@@ -101,8 +108,8 @@ int main( int argc, char **argv )
     // Vérification si le nombre de paramètres est valide
     if ( argc < 3 ) 
     {
-        fprintf(stderr, "Nombre d'arguments insuffisants: %s <server_name> <port>\n", argv[0]);
-        exit(EXIT_FAILURE);
+        fprintf( stderr, "Nombre d'arguments insuffisants: %s <server_name> <port>\n", argv[0] );
+        exit( EXIT_FAILURE );
     }
 
 
@@ -121,12 +128,13 @@ int main( int argc, char **argv )
     
     if ( pid == 0 )                                                                     // Fils : processus afficheur_message
     {
-        close( pipe_fd[1] );                                                            //      Le fils ferme son écriture dans le pipe
         dup2( pipe_fd[0], STDIN_FILENO );
-        // close( pipe_fd[0] ); 
+        close( pipe_fd[0] ); 
+        close( pipe_fd[1] );                                                            //      Le fils ferme son écriture dans le pipe
+
 
         // execl( "./afficheur_message", "afficheur_message", NULL );
-        execl("/usr/bin/xterm", "xterm", "-e", "./afficheur_message", NULL);
+        execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", NULL );
         perror( "Erreur execl pipe " );
         exit( EXIT_FAILURE );
     }
