@@ -15,6 +15,7 @@ int main()
 {
     char message[TAILLEBUF];
 
+	printf("Prêt à lire les messages...\n");
     while ( fgets(message, TAILLEBUF, stdin) != NULL ) 
 	{
         printf("Message reçu: %s", message);

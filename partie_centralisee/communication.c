@@ -89,11 +89,17 @@ int init( int port )
     while( 1 )																						// Attente de connexion du client sur la socket serveur
     {
         socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );		// La connexion du client renvoit une socket de service pour le client
+        if ( socket_service == -1 )
+        {
+            perror( "Erreur accept : " );
+            continue;
+        }
+
         if ( fork() == 0 ) // Création d'un processus par client
         {                                                                                           // Processus fils :
             close( socket_ecoute ); 
 			traiter( socket_service, "Client" );                                                    //      On traite la communication avec le client
-			exit( 0 );
+			exit( EXIT_SUCCESS );
         }
 		close( socket_service );
     }
