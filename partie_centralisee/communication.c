@@ -3,14 +3,15 @@
         - ouvrir une connexion TCP
             * créer socket TCP ( serveur )                X
             * Configurer le nbr de connexions pendantes   X
-            * attendre les connexions                     .
-                . 1 processus par client                  . 
+            * attendre les connexions                     X
+                . 1 processus par client                  X 
             * 
 
 */
 
 /*
-    cmd compilation : clear; gcc -o communication main.c communication.c ../fonctions/creerSocketTCP.c; ./communication 4006
+    cmd compilation : 
+        clear; gcc -o communication main.c communication.c ../fonctions/creerSocketTCP.c; ./communication 4006
 */
 
 #include <stdio.h>
@@ -29,7 +30,7 @@
 
 
 
-void traiter( int socket_service )
+void traiter( int socket_service, char *user )
 {
     char buffer[ TAILLEBUF ];
     ssize_t nbytes; // ssize_t compteur de bytes, signed pour pouvoir stocker une potentielle erreur avec la valeur -1 ( recv donne un ssize_t )
@@ -42,19 +43,14 @@ void traiter( int socket_service )
         if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
         {
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
-            printf( "CLIENT : %s\n", buffer );
+            printf( "%s : %s\n", user, buffer );
 
             // TEST renvoit du message au client
             send( socket_service, buffer, nbytes, 0 );
         }
-        else if ( nbytes == 0 )                                                                     //      Si le client renvoit 0, c'est qu'il s'est déconnecté
+        else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
         {
-            printf( "Client déconnecté.\n" );
-            break;
-        }
-        else                                                                                        //      Sinon, il y a eu une erreur...
-        {
-            perror( "ERROR recv." );
+            printf( "%s déconnecté.\n", user );
             break;
         }
     }
@@ -96,7 +92,7 @@ int init( int port )
         if ( fork() == 0 ) // Création d'un processus par client
         {                                                                                           // Processus fils :
             close( socket_ecoute ); 
-			traiter( socket_service );                                                              //      On traite la communication avec le client
+			traiter( socket_service, "Client" );                                                    //      On traite la communication avec le client
 			exit( 0 );
         }
 		close( socket_service );
