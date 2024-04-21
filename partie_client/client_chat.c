@@ -74,15 +74,21 @@ void envoyerMessage( int sock, char* msg )                                      
         exit( EXIT_FAILURE );
     }
 }
-void recevoirMessage( int sock, int pipe_fd ) 
+void transfererMessage( int sock, int pipe_fd_end ) 
 {
     char buffer[ TAILLEBUF ];
-    int nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );
-    // printf( "%s", buffer );
-    if ( nbytes > 0 ) 
+    ssize_t nbytes;
+
+    while ( 1 )
     {
-        buffer[ nbytes ] = '\0';
-        write( pipe_fd, buffer, nbytes );
+        memset( buffer, 0, TAILLEBUF );  // Vider le buffer
+        nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
+
+        if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
+        {
+            buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
+            write( pipe_fd_end, buffer, nbytes );
+        }
     }
 }
 
@@ -112,48 +118,53 @@ int main( int argc, char **argv )
         exit( EXIT_FAILURE );
     }
 
+    
 
     
-    // Création du pipe anonyme ( pour client |> afficheur )
-    int pipe_fd[ 2 ];
-    if ( pipe(pipe_fd) == -1 )
+    printf( "%s    %d\n", argv[1], atoi(argv[2]) );
+    int sock = connexion( argv[1], atoi(argv[2]) );                                 //      Il se connecte au serveur ( TCP avec communication.c )
+    if ( sock < 0 )
     {
-        perror( "Erreur lors de la création du pipe : " );
+        fprintf( stderr, "Erreur lors de la connexion au serveur.\n" );
+        return EXIT_FAILURE;
+    }
+
+    // Création du pipe client_chat |> afficheur_message
+    int pipe_fd[ 2 ] = { -1, -1 };
+    if ( pipe(pipe_fd) < 0 )
+    {
+        perror( "Erreur lors de la création du tube anonyme : " );
         exit( EXIT_FAILURE );
     }
 
-
-
+    // Création d'un processus pour gérer la réception des messages du serveur   ET   un autre pour gérér l'envoi
     pid_t pid = fork();
-    
-    if ( pid == 0 )                                                                     // Fils : processus afficheur_message
+    if ( pid < 0 )
     {
-        dup2( pipe_fd[0], STDIN_FILENO );
-        close( pipe_fd[0] ); 
-        close( pipe_fd[1] );                                                            //      Le fils ferme son écriture dans le pipe
-
-
-        // execl( "./afficheur_message", "afficheur_message", NULL );
-        execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", NULL );
-        perror( "Erreur execl pipe " );
+        perror( "Échec de création du processus afficheur_message : " );
         exit( EXIT_FAILURE );
     }
-
-    else if ( pid > 0 )                                                                 // Parent : processus client_chat
+    else if ( pid == 0 )                                                            // Processus FILS: Réception des messages serveurs et transfert dans |> afficheur_message
     {
-        close( pipe_fd[0] );                                                            //      Le père ferme sa lecture dans le pipe
+        close( pipe_fd[1] );                                                        //      Ferme le 'File Descriptor' côté écriture (1) du fils
+        
 
-        printf( "%s    %d\n", argv[1], atoi(argv[2]) );
-        int sock = connexion( argv[1], atoi(argv[2]) );                                 //      Il se connecte au serveur ( TCP avec communication.c )
-        if ( sock < 0 )
-        {
-            fprintf( stderr, "Erreur lors de la connexion au serveur.\n" );
-            return EXIT_FAILURE;
-        }
+        char str_fd[4];
+        sprintf( str_fd, "%d", pipe_fd[0] );
+
+        execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
+        perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
+        exit( EXIT_FAILURE );
+    }
+    else
+    {
+        close( pipe_fd[0] );
 
         char message[ TAILLEBUF ];
         while( fgets( message, TAILLEBUF, stdin ) != NULL )
         {
+            write( pipe_fd[1], message, strlen(message) );
+
             // Gestion des commandes "/..."
             if ( (strcmp(message, "/d\n") == 0) || strcmp(message, "/deco\n") == 0 || strcmp(message, "/exit\n") == 0 ) // Déconnexion
             {
@@ -161,24 +172,19 @@ int main( int argc, char **argv )
                 break;
             }
 
-            envoyerMessage( sock, message );                                            // Si ce n'est pas une commande : envoi du message
-            recevoirMessage( sock, pipe_fd[1] );                                        // Reçoit le message du serveur et l'écrit dans le pipe vers l'afficheur
+            envoyerMessage( sock, message );                                            //      Si ce n'est pas une commande : envoi du message
 
             memset( (char *)message, 0, sizeof(message) );
-            // system( "clear" );
+            system( "clear" );
         }
 
-        close( pipe_fd[1] );
-        close( sock );
-        wait(NULL);  // Attendre la fin du processus enfant
+        close( pipe_fd[1] );                                                            //      Ferme le 'File Descriptor' côté écriture (1) du père après utilisation
+        wait( NULL );                                                                   //      Attend que le processus fils termine
     }
+    
+    
 
-    else                                                                                // Sinon, erreur création processus
-    {
-        perror( "Échec de création du processus afficheur_message : " );
-        exit( EXIT_FAILURE );
-    }
-
+    close( sock );
 
     return 0;
 }

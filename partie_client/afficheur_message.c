@@ -7,20 +7,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 #define TAILLEBUF 1024
 
 
-int main() 
+int main( int argc, char **argv ) 
 {
+    int fd = atoi(argv[1]);                                     // Récupère le descripteur de fichier de la sortie (lecture) du pipe
     char message[TAILLEBUF];
 
 	printf("Prêt à lire les messages...\n");
-    while ( fgets(message, TAILLEBUF, stdin) != NULL ) 
+    while ( read( fd, message, TAILLEBUF ) > 0 )                // Quand on détecte une arrivée sur le flux du FD
 	{
-        printf("Message reçu: %s", message);
+        printf("%s", message);                                  //      On affiche le message
+        memset( (char *)message, 0, sizeof(message) );          //      On clear le buffer pour ne pas créer des "résidus" sur les messages suivants
     }
 
     printf("Fin de l'affichage des messages.\n");
+    close( fd );
     return 0;
 }

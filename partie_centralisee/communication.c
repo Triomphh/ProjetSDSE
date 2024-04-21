@@ -45,7 +45,7 @@ void traiter( int socket_service, char *user )
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
             printf( "%s : %s\n", user, buffer );
 
-            // TEST renvoit du message au client
+            // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST
             send( socket_service, buffer, nbytes, 0 );
         }
         else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
