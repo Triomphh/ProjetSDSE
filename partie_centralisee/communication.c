@@ -9,10 +9,6 @@
 
 */
 
-/*
-    cmd compilation : 
-        clear; gcc -o communication main.c communication.c ../fonctions/creerSocketTCP.c; ./communication 4006
-*/
 
 #include <stdio.h>
 #include <stdlib.h>

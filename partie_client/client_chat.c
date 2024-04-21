@@ -93,7 +93,19 @@ void transfererMessage( int sock, int pipe_fd_end )
 }
 
 
-void deconnexion( int sock )
+void deconnexion()
+{
+    // if ( send(sock, "", 0, 0) < 0 )
+    // {
+    //     perror( "Erreur lors de l'envoi du signal de déconnexion" );
+    // }
+
+    /* FERMER TOUS LES PROCESSUS CLIENTS */
+    
+
+    printf( "Vous avez été déconnecté.\n" );
+}
+void leave( int sock )
 {
     // if ( send(sock, "", 0, 0) < 0 )
     // {
@@ -103,7 +115,7 @@ void deconnexion( int sock )
     /* FERMER TOUS LES PROCESSUS CLIENTS */
     
     close(sock);
-    printf( "Vous avez été déconnecté." );
+    printf( "Vous avez quitté le client.\n" );
 }
 
 
@@ -165,12 +177,22 @@ int main( int argc, char **argv )
         {
             write( pipe_fd[1], message, strlen(message) );
 
-            // Gestion des commandes "/..."
-            if ( (strcmp(message, "/d\n") == 0) || strcmp(message, "/deco\n") == 0 || strcmp(message, "/exit\n") == 0 ) // Déconnexion
+            // === Gestion des commandes "/..." ===
+            //      Connexion                           : /c  ,        , /connect   { nom, mdp }
+            if ( (strcmp(message, "/d\n") == 0) || strcmp(message, "/deco\n") == 0 )        // Déconnexion
             {
-                deconnexion( sock );
+                deconnexion();
+            }
+            //      Afficher la liste des utilisateurs  : /l  , /list , /liste
+            //      Créer un compte                     : /cr ,       , /create     { nom, mdp }
+            //      Supprimer un compte                 : /d  , /del  , /delete     { nom, mdp }
+            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )        //      Quitter le client                   : /e  ,       , /exit
+            {
+                deconnexion();
+                leave( sock );
                 break;
             }
+
 
             envoyerMessage( sock, message );                                            //      Si ce n'est pas une commande : envoi du message
 
