@@ -113,7 +113,8 @@ void leave( int sock )
     // }
 
     /* FERMER TOUS LES PROCESSUS CLIENTS */
-    
+
+    deconnexion();
     close(sock);
     printf( "Vous avez quitté le client.\n" );
 }
@@ -186,9 +187,8 @@ int main( int argc, char **argv )
             //      Afficher la liste des utilisateurs  : /l  , /list , /liste
             //      Créer un compte                     : /cr ,       , /create     { nom, mdp }
             //      Supprimer un compte                 : /d  , /del  , /delete     { nom, mdp }
-            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )        //      Quitter le client                   : /e  ,       , /exit
+            else if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )        //      Quitter le client                   : /e  ,       , /exit
             {
-                deconnexion();
                 leave( sock );
                 break;
             }

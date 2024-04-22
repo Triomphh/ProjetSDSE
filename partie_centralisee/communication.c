@@ -1,28 +1,19 @@
-/*
-    À faire :
-        - ouvrir une connexion TCP
-            * créer socket TCP ( serveur )                X
-            * Configurer le nbr de connexions pendantes   X
-            * attendre les connexions                     X
-                . 1 processus par client                  X 
-            * 
-
-*/
-
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/socket.h>
+#include <fcntl.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <string.h>
 
 #include "../fonctions/creerSocketTCP.h"
 
-#define TAILLEBUF 1024
 
+#define REQUEST_PIPE "/tmp/request_pipe"
+#define TAILLEBUF 1024
 
 
 
@@ -30,6 +21,13 @@ void traiter( int socket_service, char *user )
 {
     char buffer[ TAILLEBUF ];
     ssize_t nbytes; // ssize_t compteur de bytes, signed pour pouvoir stocker une potentielle erreur avec la valeur -1 ( recv donne un ssize_t )
+
+
+    int request_pipe_fd = open( REQUEST_PIPE, O_WRONLY | O_NONBLOCK );                              // Ouverture du pipe en lecture et O_NONBLOCK car il s'ouvre plus tard que dans gestion_requete.c
+    if ( request_pipe_fd == -1 )
+        perror( "Erreur lors de l'ouverture du tube de communication en écriture ( communication.c |> gestionRequete.c ) " );
+    
+
 
     while ( 1 )
     {
@@ -41,8 +39,18 @@ void traiter( int socket_service, char *user )
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
             printf( "%s : %s\n", user, buffer );
 
-            // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST
-            send( socket_service, buffer, nbytes, 0 );
+            if ( buffer[0] == '/' )                                                                 //      Si il a envoyé une commande
+            {
+                printf( "COMMUNICATION   :    Commande reçue de %s :   %s\n", user, buffer );
+                write( request_pipe_fd, buffer, strlen(buffer) );
+            }
+            else                                                                                    //      Sinon c'est un message
+            {
+                // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST
+                send( socket_service, buffer, nbytes, 0 ); 
+            }
+            
+            
         }
         else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
         {
@@ -51,18 +59,23 @@ void traiter( int socket_service, char *user )
         }
     }
 
+    close( request_pipe_fd );
     close( socket_service );                                                                        // On ferme la socket associée au client
 }
 
 
 
 
-int init( int port )
+int init_communication( int port )
 {
     static struct sockaddr_in addr_serveur;
     static struct sockaddr_in addr_client;
     socklen_t addrlen;
     int socket_ecoute, socket_service;
+
+
+    if ( mkfifo( REQUEST_PIPE, 0666 ) == -1 )                                                       // Création du tube de communication pour gérer les requêtes utilisateur
+        perror( "Erreur lors de la création du tube de communication entre communication.c et gestionRequete.c " );
 
 
     // Création socket TCP d'écoute (serveur)
