@@ -38,13 +38,9 @@ int main( int argc, char **argv )
     printf( "%d\n", atoi(argv[1]) );
 
 
-    pid_t pid;
     
-
-    
-
     /* Processus Communication */
-    pid = fork();
+    pid_t pid = fork();
     if ( pid == -1 ) 
     {
         perror( "Erreur lors de la création du processus de communication " );
@@ -73,16 +69,7 @@ int main( int argc, char **argv )
     /* Gestionnaire de signaux */
     signal( SIGINT, arret_serveur );
 
-    while ( !arret && wait(NULL) > 0);
-
-
-
-
-    // /* Processus Communication */
-    // init_communication( atoi(argv[1]) );
-
-    // /* Processus Gestion Requête */
-    // init_gestion_requete();
+    while ( !arret && wait(NULL) > 0);                                                  // Boucle principale du serveur qui attend la fin des processus fils ( wait() retourne -1 si aucun fils n'est en cours d'exécution ) ou l'arret forcé ( par SIGINT )
 
 
 
