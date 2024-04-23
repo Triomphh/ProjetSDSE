@@ -4,6 +4,10 @@
 
 /*
     Fichier regroupant des objets utilisés par plusieurs programmes
+
+    Ressources :
+        + sig_atomic_t et volatile :
+            http://shtroumbiniouf.free.fr/CoursInfo/Systeme2/TP/CoursSignaux/Volatile.html
 */
 
 #include <signal.h>
