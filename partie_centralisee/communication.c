@@ -9,11 +9,8 @@
 #include <netinet/in.h>
 #include <string.h>
 
+#include "common.h"
 #include "../fonctions/creerSocketTCP.h"
-
-
-#define REQUEST_PIPE "/tmp/request_pipe"
-#define TAILLEBUF 1024
 
 
 
@@ -29,7 +26,7 @@ void traiter( int socket_service, char *user )
     
 
 
-    while ( 1 )
+    while ( !arret )
     {
         memset( buffer, 0, TAILLEBUF );  // Vider le buffer
         nbytes = recv( socket_service, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
@@ -37,12 +34,16 @@ void traiter( int socket_service, char *user )
         if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
         {
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
-            printf( "%s : %s\n", user, buffer );
+            printf( "%s : %s", user, buffer );
 
             if ( buffer[0] == '/' )                                                                 //      Si il a envoyé une commande
             {
-                printf( "COMMUNICATION   :    Commande reçue de %s :   %s\n", user, buffer );
-                write( request_pipe_fd, buffer, strlen(buffer) );
+                Command cmd;                                                                        //          On stocke sa commande et son pseudo dans une structure propre comprise par le processus gestion_requete
+                strncpy( cmd.username, user, sizeof(cmd.username) - 1 );
+                strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );
+
+                printf( "COMMUNICATION   :    Commande reçue de %s : %s", user, buffer );
+                write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //          On transmet l'adresse mémoire de la commande à gestion_requete
             }
             else                                                                                    //      Sinon c'est un message
             {
@@ -95,7 +96,7 @@ int init_communication( int port )
 
     // Attente de connexion client
     addrlen = sizeof( addr_client ); // ?
-    while( 1 )																						// Attente de connexion du client sur la socket serveur
+    while( !arret )																						// Attente de connexion du client sur la socket serveur
     {
         socket_service = accept( socket_ecoute, (struct sockaddr *)&addr_client, &addrlen );		// La connexion du client renvoit une socket de service pour le client
         if ( socket_service == -1 )

@@ -12,11 +12,19 @@
 #include <sys/wait.h>
 #include <signal.h>
 
+#include "common.h"
 #include "communication.h"
 #include "gestion_requete.h"
 
 
+volatile sig_atomic_t arret = 0;                                                        // Variable globale permettant d'arrêter le serveur (sortir des boucles infinies de lecture)                    
 
+void arret_serveur()                                                                    // Fonction d'arrêt propre du serveur déclenchée par un signal
+{
+    arret = 1;                                                                          //      Sortie des boucles de lecture ( la fermeture propre de chaque processus est géré par lui-même (le processus) )
+    unlink( REQUEST_PIPE );                                                             //      Suppression du pipe nommé ( communication |> gestion_requete )
+    printf( "\nNettoyage effectué. Fermeture du serveur.\n" );
+}
 
 
 int main( int argc, char **argv )
@@ -31,8 +39,7 @@ int main( int argc, char **argv )
 
 
     pid_t pid;
-    /* Gestionnaire de signal */
-    // signal( SIGINT, arret_serveur );
+    
 
     
 
@@ -62,7 +69,11 @@ int main( int argc, char **argv )
         exit( EXIT_SUCCESS );                                                           // Termine le processus enfant après l'exécution
     }
 
-    while (wait(NULL) > 0);
+
+    /* Gestionnaire de signaux */
+    signal( SIGINT, arret_serveur );
+
+    while ( !arret && wait(NULL) > 0);
 
 
 
