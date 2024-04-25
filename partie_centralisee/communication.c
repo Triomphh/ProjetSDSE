@@ -54,6 +54,41 @@ void traiter( int socket_service )
     // }
 
 
+    // while ( !arret )
+    // {
+    //     memset( buffer, 0, TAILLEBUF );  // Vider le buffer
+    //     nbytes = recv( socket_service, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
+
+    //     if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
+    //     {
+    //         buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
+    //         printf( "%s : %s", user.username, buffer );
+
+    //         if ( buffer[0] == '/' )                                                                 //      Si il a envoyé une commande
+    //         {
+    //             Command cmd;                                                                        //          On stocke sa commande et son pseudo dans une structure propre comprise par le processus gestion_requete
+    //             cmd.user = &user;
+    //             strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );
+
+    //             printf( "COMMUNICATION   :    Commande reçue de %s : %s", user.username, buffer );
+    //             write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //          On transmet l'adresse mémoire de la commande à gestion_requete
+    //         }
+    //         else                                                                                    //      Sinon c'est un message
+    //         {
+    //             // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST
+    //             send( socket_service, buffer, nbytes, 0 ); 
+    //         }
+            
+            
+    //     }
+    //     else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
+    //     {
+    //         printf( "%s déconnecté.\n", user.username );
+    //         break;
+    //     }
+    // }
+
+    // Les 2 boucles sont à remplacer par celle-ci
     while ( !arret )
     {
         memset( buffer, 0, TAILLEBUF );  // Vider le buffer
@@ -64,42 +99,29 @@ void traiter( int socket_service )
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
             printf( "%s : %s", user.username, buffer );
 
-            if ( buffer[0] == '/' )                                                                 //      Si il a envoyé une commande
+            if ( buffer[0] == '/' )                                                                 //      Tous les clients (même non connectés peuvent envoyer des commandes)
             {
-                Command cmd;                                                                        //          On stocke sa commande et son pseudo dans une structure propre comprise par le processus gestion_requete
+                Command cmd;                                                                        //          On stocke sa commande et son pseudo (même vide) dans une structure propre comprise par le processus gestion_requete
                 cmd.user = &user;
                 strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );
 
                 printf( "COMMUNICATION   :    Commande reçue de %s : %s", user.username, buffer );
                 write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //          On transmet l'adresse mémoire de la commande à gestion_requete
             }
-            else                                                                                    //      Sinon c'est un message
+            else if ( user.username[0] != '\0' )                                                    //      Mais seul les clients connectés peuvent envoyer des messages
             {
                 // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST
                 send( socket_service, buffer, nbytes, 0 ); 
             }
-            
-            
+
         }
-        else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
+        else
         {
-            printf( "%s déconnecté.\n", user.username );
+            printf( "%s a quitté.\n", (user.username[0] != '\0') ? user.username : "L'utilisateur non connecté" );
             break;
         }
+
     }
-
-
-    // while ( !arret )
-    // {
-    //     if ( user.username[0] != '\0' )
-    //     {
-
-    //     }
-    //     else
-    //     {
-            
-    //     }
-    // }
 
 
     close( request_pipe_fd );
