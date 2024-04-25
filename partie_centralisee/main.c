@@ -5,7 +5,7 @@
         + sig_atomic_t et volatile :
             http://shtroumbiniouf.free.fr/CoursInfo/Systeme2/TP/CoursSignaux/Volatile.html
 
-    cmd compilation : 
+    cmd compilation, sans -O : 
         clear; gcc -o serveur main.c communication.c gestion_requete.c ../fonctions/creerSocketTCP.c; ./serveur 4006
 */
 

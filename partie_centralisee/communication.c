@@ -12,18 +12,46 @@
 #include "common.h"
 #include "../fonctions/creerSocketTCP.h"
 
+// https://www.youtube.com/watch?v=WgVSq-sgHOc
 
-
-void traiter( int socket_service, char *user )
+void traiter( int socket_service )
 {
     char buffer[ TAILLEBUF ];
-    ssize_t nbytes; // ssize_t compteur de bytes, signed pour pouvoir stocker une potentielle erreur avec la valeur -1 ( recv donne un ssize_t )
+    User user = {0};                                                                                // Initialise la structure User à 0, en attendant une connexion valide
+    ssize_t nbytes;                                                                                 // Compteur de bytes (pour recv)
 
 
     int request_pipe_fd = open( REQUEST_PIPE, O_WRONLY | O_NONBLOCK );                              // Ouverture du pipe en lecture et O_NONBLOCK car il s'ouvre plus tard que dans gestion_requete.c
     if ( request_pipe_fd == -1 )
         perror( "Erreur lors de l'ouverture du tube de communication en écriture ( communication.c |> gestionRequete.c ) " );
     
+
+    // Attente de connexion de l'utilisateur à un compte valide 
+    // while ( !arret && user.username[0] == '\0' )
+    // {
+    //     printf( "Connecte toi %s\n", user.username );
+
+    //     memset( buffer, 0, TAILLEBUF );  // Vider le buffer
+    //     nbytes = recv( socket_service, buffer, TAILLEBUF - 1, 0 ); 
+
+    //     if ( nbytes > 0 )
+    //     {
+    //         buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
+    //         if ( buffer[0] == '/' )
+    //         {
+    //             Command cmd;                                                                        //              On créé l'objet commande
+    //             cmd.user = &user;                                                                   //              On lui passe l'adresse de l'utilisateur concerné (ici ~vide~, car personne n'est connecté)
+    //             strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );                            //              On copie le contenu du buffer (la commande) dans l'objet commande
+
+    //             write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //              On transmet l'adresse mémoire de la commande à gestion_requete
+    //         }
+    //     }
+    //     else
+    //     {
+    //         printf( "L'utilisateur non connecté est parti.\n" );
+    //         break;
+    //     }
+    // }
 
 
     while ( !arret )
@@ -34,15 +62,15 @@ void traiter( int socket_service, char *user )
         if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
         {
             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
-            printf( "%s : %s", user, buffer );
+            printf( "%s : %s", user.username, buffer );
 
             if ( buffer[0] == '/' )                                                                 //      Si il a envoyé une commande
             {
                 Command cmd;                                                                        //          On stocke sa commande et son pseudo dans une structure propre comprise par le processus gestion_requete
-                strncpy( cmd.username, user, sizeof(cmd.username) - 1 );
+                cmd.user = &user;
                 strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );
 
-                printf( "COMMUNICATION   :    Commande reçue de %s : %s", user, buffer );
+                printf( "COMMUNICATION   :    Commande reçue de %s : %s", user.username, buffer );
                 write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //          On transmet l'adresse mémoire de la commande à gestion_requete
             }
             else                                                                                    //      Sinon c'est un message
@@ -55,10 +83,24 @@ void traiter( int socket_service, char *user )
         }
         else                                                                                        //      Si le client renvoit autre chose, c'est qu'il s'est déconnecté (voulu ou non)
         {
-            printf( "%s déconnecté.\n", user );
+            printf( "%s déconnecté.\n", user.username );
             break;
         }
     }
+
+
+    // while ( !arret )
+    // {
+    //     if ( user.username[0] != '\0' )
+    //     {
+
+    //     }
+    //     else
+    //     {
+            
+    //     }
+    // }
+
 
     close( request_pipe_fd );
     close( socket_service );                                                                        // On ferme la socket associée au client
@@ -108,7 +150,7 @@ int init_communication( int port )
         if ( fork() == 0 ) // Création d'un processus par client
         {                                                                                           // Processus fils :
             close( socket_ecoute ); 
-			traiter( socket_service, "Client" );                                                    //      On traite la communication avec le client
+			traiter( socket_service );                                                              //      On traite la communication avec le client
 			exit( EXIT_SUCCESS );
         }
 		close( socket_service );

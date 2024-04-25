@@ -10,7 +10,10 @@
 #include <string.h>
 #include <unistd.h>
 
-#define TAILLEBUF 1024
+#include "common.h"
+
+
+volatile sig_atomic_t arret = 0;
 
 
 int main( int argc, char **argv ) 
@@ -19,7 +22,7 @@ int main( int argc, char **argv )
     char message[TAILLEBUF];
 
 	printf("Prêt à lire les messages...\n");
-    while ( read( fd, message, TAILLEBUF ) > 0 )                // Quand on détecte une arrivée sur le flux du FD
+    while ( (read( fd, message, TAILLEBUF ) > 0) && !arret )    // Quand on détecte une arrivée sur le flux du FD
 	{
         printf("%s", message);                                  //      On affiche le message
         memset( (char *)message, 0, sizeof(message) );          //      On clear le buffer pour ne pas créer des "résidus" sur les messages suivants

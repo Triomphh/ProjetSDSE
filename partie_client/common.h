@@ -14,22 +14,12 @@
 
 
 #define TAILLEBUF 1024
-#define REQUEST_PIPE "/tmp/request_pipe"
 
 
 extern volatile sig_atomic_t arret;
 
 
-typedef struct 
-{
-    char username[ 128 ];
-} User;
 
-typedef struct 
-{
-    User * user;
-    char command[ TAILLEBUF ];
-} Command;
 
 
 

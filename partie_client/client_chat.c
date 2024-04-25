@@ -20,11 +20,18 @@
 #include <netinet/in.h>
 #include <wait.h> 
 
+#include "common.h"
 #include "../fonctions/creerSocketTCP.h"
 
-#define TAILLEBUF 1024
 
 
+volatile sig_atomic_t arret = 0;
+
+void arret_client()
+{
+    arret = 1;
+    printf( "\nInterruption. Fermeture propre du client.\n" );
+}
 
 
 // Fonction qui permet de connecter le client au serveur choisi
@@ -95,25 +102,10 @@ void transfererMessage( int sock, int pipe_fd_end )
 
 void deconnexion()
 {
-    // if ( send(sock, "", 0, 0) < 0 )
-    // {
-    //     perror( "Erreur lors de l'envoi du signal de déconnexion" );
-    // }
-
-    /* FERMER TOUS LES PROCESSUS CLIENTS */
-    
-
     printf( "Vous avez été déconnecté.\n" );
 }
 void leave( int sock )
 {
-    // if ( send(sock, "", 0, 0) < 0 )
-    // {
-    //     perror( "Erreur lors de l'envoi du signal de déconnexion" );
-    // }
-
-    /* FERMER TOUS LES PROCESSUS CLIENTS */
-
     deconnexion();
     close(sock);
     printf( "Vous avez quitté le client.\n" );
@@ -132,6 +124,8 @@ int main( int argc, char **argv )
     }
 
     
+    /* Gestionnaire de signaux */
+    signal( SIGINT, arret_client );
 
     
     printf( "%s    %d\n", argv[1], atoi(argv[2]) );
@@ -174,27 +168,18 @@ int main( int argc, char **argv )
         close( pipe_fd[0] );
 
         char message[ TAILLEBUF ];
-        while( fgets( message, TAILLEBUF, stdin ) != NULL )
+        while( !arret && (fgets( message, TAILLEBUF, stdin ) != NULL)  )
         {
-            write( pipe_fd[1], message, strlen(message) );
+            envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )
 
-            // === Gestion des commandes "/..." ===
-            //      Connexion                           : /c  ,        , /connect   { nom, mdp }
-            if ( (strcmp(message, "/d\n") == 0) || strcmp(message, "/deco\n") == 0 )        // Déconnexion
-            {
-                deconnexion();
-            }
-            //      Afficher la liste des utilisateurs  : /l  , /list , /liste
-            //      Créer un compte                     : /cr ,       , /create     { nom, mdp }
-            //      Supprimer un compte                 : /d  , /del  , /delete     { nom, mdp }
-            else if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )        //      Quitter le client                   : /e  ,       , /exit
+            write( pipe_fd[1], message, strlen(message) );                              
+
+            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )   //      Gestion de la commande "/e" ou "/exit" côté client
             {
                 leave( sock );
                 break;
             }
 
-
-            envoyerMessage( sock, message );                                            //      Si ce n'est pas une commande : envoi du message
 
             memset( (char *)message, 0, sizeof(message) );
             system( "clear" );
@@ -205,8 +190,9 @@ int main( int argc, char **argv )
     }
     
     
-
-    close( sock );
+    if ( pipe_fd[0] != -1 ) close( pipe_fd[0] );                                        // Fermeture des FD du pipe
+    if ( pipe_fd[1] != -1 ) close( pipe_fd[1] );
+    close( sock );                                                                      // Fermeture de la socket
 
     return 0;
 }
