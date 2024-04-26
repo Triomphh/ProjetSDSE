@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include <string.h>
 
@@ -12,10 +14,15 @@ int init_gestion_requete()
 {
     Command cmd;
 
+    if ( mkfifo( RESPONSE_PIPE, 0666 ) == -1 )                                                              // Création du tube de communication pour gérer les réponses aux requêtes utilisateur
+        perror( "Erreur lors de la création du tube de communication de réponse entre gestionRequete.c et communication.c " );
+
+
     int request_pipe_fd = open( REQUEST_PIPE, O_RDONLY );
-    if ( request_pipe_fd == -1 )
+    // int response_pipe_fd = open( RESPONSE_PIPE, O_WRONLY | O_NONBLOCK );
+    if ( request_pipe_fd == -1  /*||  response_pipe_fd == -1*/ )
     {
-        perror( "Erreur lors de l'ouverture du tube de communication en lecture ( communication.c |> gestionRequete.c ) " );
+        perror( "Erreur lors de l'ouverture du tube de communication ( communication.c | gestionRequete.c ) " );
         exit( EXIT_FAILURE ); // On quitte cette partie     À VÉRIFIER
     }
 
@@ -30,12 +37,12 @@ int init_gestion_requete()
             //      Connexion                           : /c  ,        , /connect   { nom, mdp }
             if ( strncmp(cmd.command, "/c ", 3) == 0 || strncmp(cmd.command, "/connect ", 9) == 0 )
             {
-                char * username = strtok( cmd.command + ((cmd.command[2] == 'o') ? 9 : 3), " " );               //              Extrait le premier mot (username) apprès la commande ( en partant de l'index +commande au lieu de 0 )
+                char * username = strtok( cmd.command + ((cmd.command[2] == 'o') ? 9 : 3), " " );           //              Extrait le premier mot (username) apprès la commande ( en partant de l'index +commande au lieu de 0 )
                 if ( username )
                 {
-                    strncpy( cmd.user->username, username, sizeof(cmd.user->username) - 1 );
-                    cmd.user->username[ sizeof(cmd.user->username) - 1 ] = '\0';
-                    // printf( "Utilisateur %s connecté\n", cmd.user->username );
+                    // VÉRIFIER SI C'EST UN COMPTE VALIDE, SI OUI : 
+                    // write( response_pipe_fd, username, strlen(username) );
+                    printf( "Utilisateur %s connecté\n", username );
                 }
             }
             //      Déconnexion
@@ -54,5 +61,6 @@ int init_gestion_requete()
     }
 
     close( request_pipe_fd );
+    // close( response_pipe_fd );
     return 0;
 }

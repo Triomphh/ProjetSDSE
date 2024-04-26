@@ -27,6 +27,7 @@ void arret_serveur()                                                            
 {
     arret = 1;                                                                          //      Sortie des boucles de lecture ( la fermeture propre de chaque processus est géré par lui-même (le processus) )
     unlink( REQUEST_PIPE );                                                             //      Suppression du pipe nommé ( communication |> gestion_requete )
+    unlink( RESPONSE_PIPE );                                                            //      Suppression du pipe nommé ( communication <| gestion_requete )
     printf( "\nNettoyage effectué. Fermeture du serveur.\n" );
 }
 

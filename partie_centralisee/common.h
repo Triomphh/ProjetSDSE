@@ -15,6 +15,7 @@
 
 #define TAILLEBUF 1024
 #define REQUEST_PIPE "/tmp/request_pipe"
+#define RESPONSE_PIPE "/tmp/response_pipe"
 
 
 extern volatile sig_atomic_t arret;
