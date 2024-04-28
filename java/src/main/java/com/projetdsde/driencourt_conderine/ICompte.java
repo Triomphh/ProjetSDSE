@@ -1,4 +1,4 @@
-package java.src.main.java.com.projetdsde.driencourt_conderine;
+package com.projetdsde.driencourt_conderine;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
