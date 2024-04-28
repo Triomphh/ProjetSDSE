@@ -19,6 +19,7 @@
 #include <netdb.h>
 #include <netinet/in.h>
 #include <wait.h> 
+#include <pthread.h>
 
 #include "common.h"
 #include "../fonctions/creerSocketTCP.h"
@@ -77,26 +78,45 @@ void envoyerMessage( int sock, char* msg )                                      
     if ( send(sock, msg, strlen(msg), 0) < 0 )
     {
         perror( "Erreur lors de l'envoi du message client->serveur" );
-        close( sock );
-        exit( EXIT_FAILURE );
+        // close( sock );
+        // exit( EXIT_FAILURE );
     }
 }
-void transfererMessage( int sock, int pipe_fd_end ) 
+// void transfererMessage( int sock, int pipe_fd_end ) 
+// {
+//     char buffer[ TAILLEBUF ];
+//     ssize_t nbytes;
+
+//     while ( !arret )
+//     {
+//         memset( buffer, 0, TAILLEBUF );  // Vider le buffer
+//         nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
+
+//         if ( nbytes > 0 )                                                                 //      On regarde si le client a envoyé quelque chose
+//         {
+//             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
+//             write( pipe_fd_end, buffer, nbytes );
+//         }
+//     }
+// }
+void * transfererMessage( void * args ) 
 {
+    int sock = *(int *)args;                                                            // Récupère le premier paramètre (socket) (déréférence/valeur du pointeur vers le premier élément de args, casté en pointeur vers un entier)
+    int pipe_fd_in = *( (int *)args + 1 );                                              // Récupère le deuxième paramètre (fd du côté écriture du pipe) (déréférence/valeur du pointeur vers le premier élément de args, casté en pointeur vers un entier)
     char buffer[ TAILLEBUF ];
     ssize_t nbytes;
 
-    while ( 1 )
+    while ( !arret )
     {
-        memset( buffer, 0, TAILLEBUF );  // Vider le buffer
-        nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
-
-        if ( nbytes > 0 )                                                                           //      On regarde si le client a envoyé quelque chose
+        memset( buffer, 0, TAILLEBUF );                                                 //    Vider le buffer
+        nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                //    On attend un message du serveur ( TAILLEBUF - 1 pour stocker le '\0' )
+        if ( nbytes > 0 )
         {
-            buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
-            write( pipe_fd_end, buffer, nbytes );
+            buffer[ nbytes ] = '\0';                                                    // On "termine"/"coupe" la chaîne de char.
+            write( pipe_fd_in, buffer, nbytes );
         }
     }
+    return NULL;
 }
 
 
@@ -109,6 +129,7 @@ void leave( int sock )
     deconnexion();
     close(sock);
     printf( "Vous avez quitté le client.\n" );
+    arret = 1;
 }
 
 
@@ -144,7 +165,7 @@ int main( int argc, char **argv )
         exit( EXIT_FAILURE );
     }
 
-    // Création d'un processus pour gérer la réception des messages du serveur   ET   un autre pour gérér l'envoi
+    // Création d'un processus pour gérer le lancement de l'afficheur message    ET    un autre pour gérér la réception des messages via un thread, sinon l'envoi
     pid_t pid = fork();
     if ( pid < 0 )
     {
@@ -154,8 +175,7 @@ int main( int argc, char **argv )
     else if ( pid == 0 )                                                            // Processus FILS: Réception des messages serveurs et transfert dans |> afficheur_message
     {
         close( pipe_fd[1] );                                                        //      Ferme le 'File Descriptor' côté écriture (1) du fils
-        
-
+    
         char str_fd[4];
         sprintf( str_fd, "%d", pipe_fd[0] );
 
@@ -167,29 +187,37 @@ int main( int argc, char **argv )
     {
         close( pipe_fd[0] );
 
+
+        pthread_t recv_thread;
+        int recv_thread_args[ 2 ] = { sock, pipe_fd[1] };
+        if ( pthread_create(&recv_thread, NULL, transfererMessage, recv_thread_args) != 0 )
+        {
+            perror( "Erreur création thread receveur message" );
+        }
+
+
         char message[ TAILLEBUF ];
         while( !arret && (fgets( message, TAILLEBUF, stdin ) != NULL)  )
         {
-            envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )
+            envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )                          
 
-            write( pipe_fd[1], message, strlen(message) );                              
-
-            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )   //      Gestion de la commande "/e" ou "/exit" côté client
+            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )    //      Gestion de la commande "/e" ou "/exit" côté client
             {
                 leave( sock );
                 break;
             }
 
-
-            memset( (char *)message, 0, sizeof(message) );
+            memset( (char *)message, 0, sizeof(message) );                              //      On vide le buffer (message)
             system( "clear" );
         }
+
+        pthread_join( recv_thread, NULL );
 
         close( pipe_fd[1] );                                                            //      Ferme le 'File Descriptor' côté écriture (1) du père après utilisation
         wait( NULL );                                                                   //      Attend que le processus fils termine
     }
-    
-    
+
+
     if ( pipe_fd[0] != -1 ) close( pipe_fd[0] );                                        // Fermeture des FD du pipe
     if ( pipe_fd[1] != -1 ) close( pipe_fd[1] );
     close( sock );                                                                      // Fermeture de la socket

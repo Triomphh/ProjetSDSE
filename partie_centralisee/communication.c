@@ -15,8 +15,53 @@
 // https://www.youtube.com/watch?v=WgVSq-sgHOc
 // https://www.tutorialspoint.com/inter_process_communication/inter_process_communication_shared_memory.htm
 
+
+
+void test_register_user( int fd ) // Fonction temporaire pour ajouter l'utilisateur (même non connecté) à un fichier temporaire qui liste tous les utilisateurs présents
+{
+    static int user_count = 0;
+    FILE * file = fopen( "connected.txt", "a" ); // Mode "append"
+    if ( file == NULL )
+    {
+        perror( "Erreur ouverture fichier temporaire 'connected.txt' " );
+        return;
+    }
+
+    fprintf( file, "user%d %d\n", user_count++, fd ); // user1 8\n user2 9 ...
+    fclose( file );
+}
+
+void broadcast( const char * message, const char * userlist_file )
+{
+    FILE * file = fopen( userlist_file, "r" );
+    if ( !file )
+    {
+        perror( "Erreur ouverture du fichier 'utilisateurs connectés' pour broadcast " );
+        return;
+    }
+
+    char line[ 1024 ];
+    while ( fgets(line, sizeof(line), file) )
+    {
+        char * username = strtok( line, " " );
+        char * fd_string = strtok( NULL, "\n" );
+        if ( fd_string )
+        {
+            int fd = atoi( fd_string );
+            if ( fd > 0 )
+            {
+                send( fd, message, strlen(message), 0 );
+            }
+        }
+    }
+
+    fclose( file );
+}
+
 void traiter( int socket_service )
 {
+    test_register_user( socket_service );
+
     char buffer[ TAILLEBUF ];
     User user = {0};                                                                                // Initialise la structure User à vide, en attendant une connexion valide
     ssize_t nbytes;                                                                                 // Compteur de bytes reçus (pour recv)
@@ -59,9 +104,10 @@ void traiter( int socket_service )
             else if ( user.username[0] != '\0' )                                                    //      Mais seul les clients connectés peuvent envoyer des messages
             {
                 // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST À TOUS LES CLIENTS (récupérer la liste des connectés et itérer)
-                send( socket_service, buffer, nbytes, 0 ); 
+                // broadcast( buffer, "connected.txt" );
             }
-
+            send( socket_service, buffer, nbytes, 0 );
+            // broadcast( buffer, "connected.txt" );
         }
         else
         {
