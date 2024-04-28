@@ -101,13 +101,12 @@ void traiter( int socket_service )
                 //     user.username[ sizeof(user.username) - 1 ] = '\0';                              //          On coupe la chaîne de caractères
                 // }
             }
-            else if ( user.username[0] != '\0' )                                                    //      Mais seul les clients connectés peuvent envoyer des messages
+            else if ( user.username[0] != '\0' )                                                    //      Mais seul les clients connectés peuvent envoyer/recevoir des messages
             {
-                // TEST renvoit du message au client À REMPLACER PAR UN BROADCAST À TOUS LES CLIENTS (récupérer la liste des connectés et itérer)
+                // Broadcast à tous les clients (récupérer la liste des connectés et itérer)
                 // broadcast( buffer, "connected.txt" );
             }
-            send( socket_service, buffer, nbytes, 0 );
-            // broadcast( buffer, "connected.txt" );
+            send( socket_service, buffer, nbytes, 0 ); // TEST sendback, À RETIRER
         }
         else
         {
