@@ -82,23 +82,7 @@ void envoyerMessage( int sock, char* msg )                                      
         // exit( EXIT_FAILURE );
     }
 }
-// void transfererMessage( int sock, int pipe_fd_end ) 
-// {
-//     char buffer[ TAILLEBUF ];
-//     ssize_t nbytes;
 
-//     while ( !arret )
-//     {
-//         memset( buffer, 0, TAILLEBUF );  // Vider le buffer
-//         nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                  //      On attend un message du client ( TAILLEBUF - 1 pour stocker le '\0' )
-
-//         if ( nbytes > 0 )                                                                 //      On regarde si le client a envoyé quelque chose
-//         {
-//             buffer[ nbytes ] = '\0';    // On "termine"/"coupe" la chaîne de char.
-//             write( pipe_fd_end, buffer, nbytes );
-//         }
-//     }
-// }
 void * transfererMessage( void * args ) 
 {
     int sock = *(int *)args;                                                            // Récupère le premier paramètre (socket) (déréférence/valeur du pointeur vers le premier élément de args, casté en pointeur vers un entier)
@@ -165,7 +149,7 @@ int main( int argc, char **argv )
         exit( EXIT_FAILURE );
     }
 
-    // Création d'un processus pour gérer le lancement de l'afficheur message    ET    un autre pour gérér la réception des messages via un thread, sinon l'envoi
+    // Création d'un processus pour gérer le lancement de l'afficheur message    ET    le parent pour gérér la réception des messages via un thread, sinon l'envoi
     pid_t pid = fork();
     if ( pid < 0 )
     {
