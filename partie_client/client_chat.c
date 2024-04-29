@@ -164,6 +164,12 @@ int main( int argc, char **argv )
         sprintf( str_fd, "%d", pipe_fd[0] );
 
         execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
+        // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--wait", "--", "./afficheur_message", str_fd, NULL );
+        // execl("/usr/bin/gnome-terminal", "gnome-terminal", "--", "sh", "-c", "./afficheur_message \"$1\"", "_", str_fd, NULL);
+
+        // char cmd[256];
+        // sprintf(cmd, "sh -c './afficheur_message %d'", pipe_fd[0]);
+        // execl("/usr/bin/gnome-terminal", "gnome-terminal", "--working-directory=/path/to/directory", "--", cmd, (char *) NULL);
         perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
         exit( EXIT_FAILURE );
     }
