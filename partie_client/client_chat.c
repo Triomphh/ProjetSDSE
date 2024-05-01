@@ -164,12 +164,12 @@ int main( int argc, char **argv )
         sprintf( str_fd, "%d", pipe_fd[0] );
 
         // execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
-        // execl( "$HOME/Documents/ProjetSDSE/dependancies/xterm-390_installed/bin/xterm", "-e", "./afficheur_message", str_fd, NULL );
+        // execl( "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm", "-e", "./afficheur_message", str_fd, NULL );
         // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--", "./afficheur_message", str_fd, NULL );
         // perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
         // exit( EXIT_FAILURE );
         char command[356];
-        sprintf( command, "$HOME/Documents/ProjetSDSE/dependancies/xterm-390_installed/bin/xterm -e ./afficheur_message %d", pipe_fd[0] );
+        sprintf( command, "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm -e ./afficheur_message %d", pipe_fd[0] );
         system( command );
     }
     else
