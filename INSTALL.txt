@@ -1,0 +1,275 @@
+Si il faut unset les flags de compilation (après un script qui a échoué peut-être)
+    unset CFLAGS;
+    unset CPPFLAGS;
+    unset LDFLAGS;
+    unset LD_LIBRARY_PATH;
+    unset LIBS;
+
+
+ÉTAPE PRÉLIMINAIRE
+Télécharger libtool       et le mettre dans dependancies : https://mirror.cyberbits.eu/gnu/libtool/
+Télécharger libffi        et le mettre dans dependancies : https://github.com/libffi/libffi/releases/download/v3.4.5/libffi-3.4.5.tar.gz
+Télécharger gettext       et le mettre dans dependancies : https://ftp.gnu.org/pub/gnu/gettext/gettext-0.22.5.tar.gz
+Télécharger glib          et le mettre dans dependancies : https://download.gnome.org/sources/glib/2.9/glib-2.9.6.tar.gz
+
+git clone https://github.com/madler/zlib
+
+
+Télécharger m4            et le mettre dans dependancies : https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.gz
+Télécharger autoconf      et le mettre dans dependancies : http://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz
+Télécharger automake 1.13 et le mettre dans dependancies : https://ftp.gnu.org/gnu/automake/automake-1.13.tar.gz
+Télécharger libtool       et le mettre dans dependancies : https://mirror.cyberbits.eu/gnu/libtool/
+Télécharger xterm         et le mettre dans dependancies : https://invisible-island.net/datafiles/release/xterm.tar.gz
+
+
+No package 'xproto' found
+No package 'x11' found
+No package 'xext' found
+No package 'xextproto' found
+No package 'xt' found
+No package 'xmu' found
+
+
+
+
+
+SCRIPT:
+
+mkdir dependancies;
+cd dependancies;
+
+    wget https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.gz;
+    tar -xzf m4-1.4.19.tar.gz;
+    rm m4-1.4.19.tar.gz;
+    mkdir m4-1.4.19_installed;
+    cd m4-1.4.19;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/m4-1.4.19_installed;
+    make;
+    make install;
+    export PATH=$HOME/Documents/ProjetSDSE/dependancies/m4-1.4.19_installed/bin:$PATH;
+    cd ..;
+
+    wget http://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz;
+    tar -xzf autoconf-2.72.tar.gz;
+    rm autoconf-2.72.tar.gz;
+    mkdir autoconf-2.72_installed;
+    cd autoconf-2.72;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/autoconf-2.72_installed;
+    make;
+    make install;
+    export PATH=$HOME/Documents/ProjetSDSE/dependancies/autoconf-2.72_installed/bin:$PATH;
+    cd ..;
+
+    wget https://ftp.gnu.org/gnu/automake/automake-1.16.5.tar.gz;
+    tar -xzf automake-1.16.5.tar.gz;
+    rm automake-1.16.5.tar.gz;
+    mkdir automake-1.16.5_installed;
+    cd automake-1.16.5;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/automake-1.16.5_installed;
+    make;
+    make install;
+    export PATH=$HOME/Documents/ProjetSDSE/dependancies/automake-1.16.5_installed/bin:$PATH;
+    cd ..;
+
+
+    wget https://www.x.org/archive//individual/util/util-macros-1.20.1.tar.gz;
+    tar -xzf util-macros-1.20.1.tar.gz;
+    rm util-macros-1.20.1.tar.gz;
+    mkdir xorg-macros_installed;
+    cd util-macros-1.20.1;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/xorg-macros_installed;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/xorg-macros_installed/share/pkgconfig:$PKG_CONFIG_PATH
+    export ACLOCAL_PATH=$HOME/Documents/ProjetSDSE/dependancies/xorg-macros_installed/share/aclocal:$ACLOCAL_PATH
+    cd ..;
+
+    wget https://mirror.cyberbits.eu/gnu/libtool/libtool-2.4.7.tar.gz
+    tar -xzf libtool-2.4.7.tar.gz
+    rm libtool-2.4.7.tar.gz
+    mkdir libtool-2.4.7_installed;
+    cd libtool-2.4.7;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libtool-2.4.7_installed;
+    make;
+    make install;
+    export PATH=$HOME/Documents/ProjetSDSE/dependancies/libtool-2.4.7_installed/bin:$PATH;
+    cd ..;
+
+
+    wget  https://www.x.org/releases/individual/proto/xorgproto-2024.1.tar.gz
+    tar -xzf xorgproto-2024.1.tar.gz;
+    rm xorgproto-2024.1.tar.gz;
+    mkdir xorgproto-2024.1_installed;
+    cd xorgproto-2024.1;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/xorgproto-2024.1_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/xorgproto-2024.1_installed/share/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    wget https://www.x.org/releases/individual/lib/xtrans-1.5.0.tar.gz
+    tar -xzf xtrans-1.5.0.tar.gz;
+    rm xtrans-1.5.0.tar.gz;
+    mkdir xtrans-1.5.0_installed;
+    cd xtrans-1.5.0;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/xtrans-1.5.0_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/xtrans-1.5.0_installed/share/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    
+    wget https://www.x.org/releases/individual/proto/xcb-proto-1.17.0.tar.gz
+    tar -xzf xcb-proto-1.17.0.tar.gz;
+    rm xcb-proto-1.17.0.tar.gz;
+    mkdir xcb-proto-1.17.0_installed;
+    cd xcb-proto-1.17.0;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/xcb-proto-1.17.0_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/xcb-proto-1.17.0_installed/share/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    wget https://www.x.org/releases/individual/lib/libXau-1.0.11.tar.gz
+    tar -xzf libXau-1.0.11.tar.gz;
+    rm libXau-1.0.11.tar.gz;
+    mkdir libXau-1.0.11_installed;
+    cd libXau-1.0.11;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXau-1.0.11_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXau-1.0.11_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+    
+    wget https://www.x.org/releases/individual/lib/libxcb-1.17.0.tar.gz
+    tar -xzf libxcb-1.17.0.tar.gz;
+    rm libxcb-1.17.0.tar.gz;
+    mkdir libxcb-1.17.0_installed;
+    cd libxcb-1.17.0;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libxcb-1.17.0_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libxcb-1.17.0_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    wget https://www.x.org/releases/individual/lib/libX11-1.8.tar.gz;
+    tar -xzf libX11-1.8.tar.gz
+    rm libX11-1.8.tar.gz
+    mkdir libX11-1.8_installed;
+    cd libX11-1.8;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libX11-1.8_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libX11-1.8_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    
+    wget https://www.x.org/releases/individual/lib/libICE-1.1.1.tar.gz
+    tar -xzf libICE-1.1.1.tar.gz;
+    rm libICE-1.1.1.tar.gz;
+    mkdir libICE-1.1.1_installed;
+    cd libICE-1.1.1;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libICE-1.1.1_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libICE-1.1.1_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+    wget https://www.x.org/releases/individual/lib/libSM-1.2.4.tar.gz
+    tar -xzf libSM-1.2.4.tar.gz;
+    rm libSM-1.2.4.tar.gz;
+    mkdir libSM-1.2.4_installed;
+    cd libSM-1.2.4;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libSM-1.2.4_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libSM-1.2.4_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+    wget https://www.x.org/releases/individual/lib/libXt-1.3.0.tar.gz;
+    tar -xzf libXt-1.3.0.tar.gz
+    rm libXt-1.3.0.tar.gz
+    mkdir libXt-1.3.0_installed;
+    cd libXt-1.3.0;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXt-1.3.0_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXt-1.3.0_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+    wget https://www.x.org/releases/individual/lib/libXext-1.3.6.tar.gz
+    tar -xzf libXext-1.3.6.tar.gz
+    rm libXext-1.3.6.tar.gz
+    mkdir libXext-1.3.6_installed;
+    cd libXext-1.3.6;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXext-1.3.6_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXext-1.3.6_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+    wget https://www.x.org/releases/individual/lib/libXmu-1.2.1.tar.gz
+    tar -xzf libXmu-1.2.1.tar.gz
+    rm libXmu-1.2.1.tar.gz
+    mkdir libXmu-1.2.1_installed;
+    cd libXmu-1.2.1;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXmu-1.2.1_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXmu-1.2.1_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+    wget https://www.x.org/releases/individual/lib/libXpm-3.5.17.tar.gz
+    tar -xzf libXpm-3.5.17.tar.gz
+    rm libXpm-3.5.17.tar.gz
+    mkdir libXpm-3.5.17_installed;
+    cd libXpm-3.5.17;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXpm-3.5.17_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXpm-3.5.17_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+    wget https://www.x.org/releases/individual/lib/libXaw-1.0.16.tar.gz;
+    tar -xzf libXaw-1.0.16.tar.gz;
+    rm libXaw-1.0.16.tar.gz;
+    mkdir libXaw-1.0.16_installed;
+    cd libXaw-1.0.16;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/libXaw-1.0.16_installed;
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/libXaw-1.0.16_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    cd ..;
+
+
+
+    wget https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz;
+    tar -xzf ncurses-6.5.tar.gz;
+    rm ncurses-6.5.tar.gz;
+    mkdir ncurses-6.5_installed;
+    cd ncurses-6.5; 
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed --with-shared --enable-widec --with-pkg-config-libdir=$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/lib/pkgconfig
+    make;
+    make install;
+    export PKG_CONFIG_PATH=$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/lib/pkgconfig:$PKG_CONFIG_PATH
+    export CFLAGS="-I$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/include/ncursesw -I$HOME/Documents/ProjetSDSE/dependancies/libX11-1.8_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/xorgproto-2024.1_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libXt-1.3.0_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/libSM-1.2.4_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libICE-1.1.1_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/libXmu-1.2.1_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libXaw-1.0.16_installed/include $CFLAGS"
+    export CPPFLAGS="-I$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/include/ncursesw -I$HOME/Documents/ProjetSDSE/dependancies/libX11-1.8_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/xorgproto-2024.1_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libXt-1.3.0_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/libSM-1.2.4_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libICE-1.1.1_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/libXmu-1.2.1_installed/include/ -I$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/include -I$HOME/Documents/ProjetSDSE/dependancies/libXaw-1.0.16_installed/include $CPPFLAGS"
+    export LDFLAGS="-L$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/lib $LDFLAGS"
+    export LD_LIBRARY_PATH="$HOME/Documents/ProjetSDSE/dependancies/ncurses-6.5_installed/lib:$LD_LIBRARY_PATH"
+    export LIBS="-lncursesw $LIBS"
+    cd ..;
+
+
+
+    wget https://invisible-island.net/datafiles/release/xterm.tar.gz;
+    tar -xzf xterm.tar.gz;
+    rm xterm.tar.gz;
+    mkdir xterm-390_installed;
+    cd xterm-390;
+    ./configure --prefix=$HOME/Documents/ProjetSDSE/dependancies/xterm-390_installed;
+    make;
+    make install;
