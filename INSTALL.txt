@@ -5,29 +5,27 @@ Si il faut unset les flags de compilation (après un script qui a échoué peut-
     unset LD_LIBRARY_PATH;
     unset LIBS;
 
-
-ÉTAPE PRÉLIMINAIRE
-Télécharger libtool       et le mettre dans dependancies : https://mirror.cyberbits.eu/gnu/libtool/
-Télécharger libffi        et le mettre dans dependancies : https://github.com/libffi/libffi/releases/download/v3.4.5/libffi-3.4.5.tar.gz
-Télécharger gettext       et le mettre dans dependancies : https://ftp.gnu.org/pub/gnu/gettext/gettext-0.22.5.tar.gz
-Télécharger glib          et le mettre dans dependancies : https://download.gnome.org/sources/glib/2.9/glib-2.9.6.tar.gz
-
-git clone https://github.com/madler/zlib
-
-
-Télécharger m4            et le mettre dans dependancies : https://ftp.gnu.org/gnu/m4/m4-1.4.19.tar.gz
-Télécharger autoconf      et le mettre dans dependancies : http://ftp.gnu.org/gnu/autoconf/autoconf-2.72.tar.gz
-Télécharger automake 1.13 et le mettre dans dependancies : https://ftp.gnu.org/gnu/automake/automake-1.13.tar.gz
-Télécharger libtool       et le mettre dans dependancies : https://mirror.cyberbits.eu/gnu/libtool/
-Télécharger xterm         et le mettre dans dependancies : https://invisible-island.net/datafiles/release/xterm.tar.gz
-
-
-No package 'xproto' found
-No package 'x11' found
-No package 'xext' found
-No package 'xextproto' found
-No package 'xt' found
-No package 'xmu' found
+Packages installés 
+m4
+autoconf
+automake
+util-macros
+libtool
+xorgproto
+xtrans
+xcb
+Xau
+xcb
+X11
+ICE
+sm
+Xt
+Xext
+Xmu
+Xpm
+Xaw
+ncurses
+xterm
 
 
 
