@@ -1,6 +1,6 @@
 /*
     cmd compilation : 
-        clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c; ./client localhost 4006
+        clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c -lpthread; ./client localhost 4009
 
     Ressources : 
         PIPES : 
@@ -163,9 +163,14 @@ int main( int argc, char **argv )
         char str_fd[4];
         sprintf( str_fd, "%d", pipe_fd[0] );
 
-        execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
-        perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
-        exit( EXIT_FAILURE );
+        // execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
+        // execl( "$HOME/Documents/ProjetSDSE/dependancies/xterm-390_installed/bin/xterm", "-e", "./afficheur_message", str_fd, NULL );
+        // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--", "./afficheur_message", str_fd, NULL );
+        // perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
+        // exit( EXIT_FAILURE );
+        char command[356];
+        sprintf( command, "$HOME/Documents/ProjetSDSE/dependancies/xterm-390_installed/bin/xterm -e ./afficheur_message %d", pipe_fd[0] );
+        system( command );
     }
     else
     {
