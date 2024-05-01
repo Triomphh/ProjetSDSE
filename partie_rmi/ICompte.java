@@ -1,4 +1,3 @@
-package com.projetdsde.driencourt_conderine;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

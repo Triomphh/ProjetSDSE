@@ -1,5 +1,3 @@
-package com.projetdsde.driencourt_conderine;
-
 import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -8,9 +6,10 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class Serveur {
     public static void main(String[] args) throws Exception {
-        ICompte compte = (ICompte) UnicastRemoteObject.exportObject(new GestionCompte(), 1099);
-        Registry reg = LocateRegistry.createRegistry(1099);
-        Naming.rebind("Test", compte);
+        ICompte ah = new GestionCompte();
+        ICompte test = (ICompte) UnicastRemoteObject.exportObject(ah, 0);
+        Registry registry = LocateRegistry.getRegistry();
+        registry.rebind("Bref", test);
         System.out.println("serveur prêt");
     }
 }
