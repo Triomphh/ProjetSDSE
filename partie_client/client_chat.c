@@ -1,6 +1,6 @@
 /*
     cmd compilation : 
-        clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c; ./client localhost 4006
+        clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c -lpthread; ./client localhost 4006
 
     Ressources : 
         PIPES : 
@@ -163,13 +163,8 @@ int main( int argc, char **argv )
         char str_fd[4];
         sprintf( str_fd, "%d", pipe_fd[0] );
 
-        execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
-        // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--wait", "--", "./afficheur_message", str_fd, NULL );
-        // execl("/usr/bin/gnome-terminal", "gnome-terminal", "--", "sh", "-c", "./afficheur_message \"$1\"", "_", str_fd, NULL);
-
-        // char cmd[256];
-        // sprintf(cmd, "sh -c './afficheur_message %d'", pipe_fd[0]);
-        // execl("/usr/bin/gnome-terminal", "gnome-terminal", "--working-directory=/path/to/directory", "--", cmd, (char *) NULL);
+        // execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
+        execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--", "./afficheur_message", str_fd, NULL );
         perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
         exit( EXIT_FAILURE );
     }
