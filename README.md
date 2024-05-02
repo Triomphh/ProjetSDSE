@@ -7,8 +7,37 @@ Il est recommandé de lire ce `README.md` sur le [GitHub du projet](https://gith
 <sub>https://github.com/Triomphh/ProjetSDSE/</sub>
 
 
-# Quelques infos avant de lire
-...
+
+
+# Architecture
+## Partie client
+<sup>(Même architecture que celle du sujet)</sup>  
+### `client_chat.c`
+- `client_chat.c` communique avec `communication.c` via un socket TCP
+- `client_chat.c` communique avec `afficheur_message.c` via un pipe (nommé ou anonyme, voir [partie pipe](/))
+
+### `afficheur_message.c`
+
+### Pipe `client_chat.c` |> `afficheur_message.c`
+Deux structures possibles : 
+  - **Par défaut**: utilise un pipe nommé
+  - **Alternative**: utilise un pipe anonyme, mais fonctionne uniquement avec xTerm
+     - Utiliser le script `INSTALL.txt` : permet de compiler localement toutes les dépendances de xTerm <sub>(il a été conçu spécialement pour être lancé dans un environnement non super-utilisateur, comme à la fac...)</sub>  
+     <sub>**ou**</sub>
+     - Installer directement xTerm à l'aide de votre gestionnaire de packages
+
+
+## Partie centralisée
+
+
+## Partie Java
+
+
+
+## Global
+signal arret ............................................................
+
+
 
 
 # Compilation
