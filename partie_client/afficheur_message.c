@@ -25,7 +25,6 @@ volatile sig_atomic_t arret = 0;
 int main( int argc, char **argv ) 
 {
     printf( "%s\n", argv[1] );
-    sleep(5);
     int pipe_fd = open( argv[1], O_RDONLY );
     if ( pipe_fd == -1 )
         perror( "Erreur lors de l'ouverture du tube nommé côté lecture ( client_chat.c |> afficheur_message.c ) " );
