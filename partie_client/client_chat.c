@@ -111,7 +111,6 @@ void deconnexion()
 void leave( int sock )
 {
     deconnexion();
-    close(sock);
     printf( "Vous avez quitté le client.\n" );
     arret = 1;
 }
