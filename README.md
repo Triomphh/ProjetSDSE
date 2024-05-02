@@ -8,7 +8,9 @@ Il est recommandé de lire ce `README.md` sur le [GitHub du projet](https://gith
 <br >
 <br >
 La majeure partie du code est commentée de façon très explicite pour faciliter la compréhension.
-
+<br >
+<br >
+<br >
 
 
 
@@ -21,7 +23,9 @@ clear; gcc -o serveur main.c communication.c gestion_requete.c ../fonctions/cree
 ```
 clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c -lpthread; ./client localhost 4009
 ```
-
+<br >
+<br >
+<br >
 
 
 # Architecture
@@ -33,15 +37,16 @@ clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c
 <br >
 
 `client_chat.c` lance d'abord un **thread** qui s'occupe de reçevoir les messages du serveur <sub>(`communication.c`)</sub>  
-puis dans le processus principal il s'occupe d'envoyer chaque chaîne de caractères qu'il reçoit dans son **_stdin_** <sub>(après avoir appuyé sur **[ENTRÉE]**)</sub> au serveur <sub>(`communication.c`)</sub>  
-
-
-
+puis dans le processus principal il s'occupe d'envoyer chaque chaîne de caractères qu'il reçoit dans son **_stdin_** <sub>(après avoir appuyé sur **[ENTRÉE]**)</sub> au serveur <sub>(`communication.c`)</sub>
+<br >
+<br >
+<br >
 
 ### `afficheur_message.c`
 Simple boucle qui lit le côté lecture de son pipe (nommé ou anonyme, voir la [section sur les pipes](#pipe-client_chatc--afficheur_messagec)) et affiche le contenu.
-
-
+<br >
+<br >
+<br >
 
 ### Pipe `client_chat.c` |> `afficheur_message.c`
 Deux structures possibles : 
@@ -50,7 +55,9 @@ Deux structures possibles :
      - Utiliser le script `INSTALL.txt` : permet de compiler localement toutes les dépendances de xTerm <sub>(il a été conçu spécialement pour être lancé dans un environnement non super-utilisateur, comme à la fac...)</sub>  
      <sub>**ou**</sub>
      - Installer directement xTerm à l'aide de votre gestionnaire de packages
-
+<br >
+<br >
+<br >
 
 
 
@@ -60,6 +67,9 @@ Deux structures possibles :
 
 ### `main.c`
 S'occupe de lancer les différents processus (**Communication** et **Gestion Requête**) et de les fermer correctement via un gestionnaire de signal (voir [partie Gestionnaire de signaux](#gestionnaire-de-signaux))
+<br >
+<br >
+<br >
 
 
 ### `communication.c`
@@ -76,6 +86,9 @@ _`traiter()`_ permet de lire les chaînes de caractères envoyées par le client
 - sinon, c'est un message qui est destiné à être envoyé aux autres utilisateurs
  
 _`traiter()`_ permet aussi de faire la différence entre un utilisateur connecté ou non, si celui-ci n'est pas connecté, il ne peut pas envoyer de message mais uniquement des commandes <sub>_(pour se connecter, créer un compte, etc...)_</sub>
+<br >
+<br >
+<br >
 
 
 ### `communication.c`
@@ -83,28 +96,35 @@ _`traiter()`_ permet aussi de faire la différence entre un utilisateur connect�
 <br >
 
 `gestion_requete.c` permet d'effectuer diverses actions en fonction de la commande reçue
-```
+```c
 // === Gestion des commandes "/..." ===
-//      Connexion                           : /c  ,        , /connect   { nom, mdp }
-//      Déconnexion                         :
+//      Connexion                           : /c  ,       , /connect   { nom, mdp }
+//      Déconnexion                         : /e  ,       , /exit 
 //      Afficher la liste des utilisateurs  : /l  , /list , /liste
 //      Créer un compte                     : /cr ,       , /create     { nom, mdp }
 //      Supprimer un compte                 : /d  , /del  , /delete     { nom, mdp }
+// ====================================
 ```
-
+<br >
+<br >
+<br >
 
 
 
 
 ## Partie Java
 
+<br >
+<br >
+<br >
 
 
 ## Global
 ### Gestionnaire de signaux
-signal arret ............................................................
-### Arrêts propres
-
+Un gestionnaire de signal (SIGINT) a été créé pour arrêter proprement les différents processus, en sortant des boucles _"infinies"_ (ce qui permet déjà de fermer proprement les pipes et les sockets) mais aussi de supprimer les fichiers créés par les pipes nommés.  
+<br >
+<br >
+<br >
 
 
 ## Optionnel
