@@ -14,7 +14,7 @@ Il est recommandé de lire ce `README.md` sur le [GitHub du projet](https://gith
 <sup>(Même architecture que celle du sujet)</sup>  
 ### `client_chat.c`
 - `client_chat.c` communique avec `communication.c` via un socket TCP
-- `client_chat.c` communique avec `afficheur_message.c` via un pipe (nommé ou anonyme, voir [partie pipe](/))
+- `client_chat.c` communique avec `afficheur_message.c` via un pipe (nommé ou anonyme, voir [partie pipe](/pipe-client_chatc--afficheur_messagec))
 
 ### `afficheur_message.c`
 
