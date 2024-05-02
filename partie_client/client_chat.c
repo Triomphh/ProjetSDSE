@@ -118,6 +118,22 @@ void leave( int sock )
 
 
 
+/*  
+    ================== 
+    Version pipe nommé 
+    ================== 
+*/
+char * get_pipe_name() // Fonction qui créé un nom de pipe unique pour chaque utilisateur qui demande l'ouverture d'un pipe client_chat.c |> afficheur_message.c
+{
+    static char pipe_name[256];
+    pid_t pid = getpid();
+
+    snprintf( pipe_name, sizeof(pipe_name), "afficheur_pipe_%d", (int)pid  );
+
+    return pipe_name;
+}
+
+
 
 int main( int argc, char **argv )
 {
@@ -134,82 +150,169 @@ int main( int argc, char **argv )
 
     
     printf( "%s    %d\n", argv[1], atoi(argv[2]) );
-    int sock = connexion( argv[1], atoi(argv[2]) );                                 //      Il se connecte au serveur ( TCP avec communication.c )
+    int sock = connexion( argv[1], atoi(argv[2]) );                                      // Il se connecte au serveur ( TCP avec communication.c )
     if ( sock < 0 )
     {
         fprintf( stderr, "Erreur lors de la connexion au serveur.\n" );
         return EXIT_FAILURE;
     }
 
-    // Création du pipe client_chat |> afficheur_message
-    int pipe_fd[ 2 ] = { -1, -1 };
-    if ( pipe(pipe_fd) < 0 )
-    {
-        perror( "Erreur lors de la création du tube anonyme : " );
-        exit( EXIT_FAILURE );
-    }
 
-    // Création d'un processus pour gérer le lancement de l'afficheur message    ET    le parent pour gérér la réception des messages via un thread, sinon l'envoi
-    pid_t pid = fork();
-    if ( pid < 0 )
-    {
-        perror( "Échec de création du processus afficheur_message : " );
-        exit( EXIT_FAILURE );
-    }
-    else if ( pid == 0 )                                                            // Processus FILS: Réception des messages serveurs et transfert dans |> afficheur_message
-    {
-        close( pipe_fd[1] );                                                        //      Ferme le 'File Descriptor' côté écriture (1) du fils
     
-        char str_fd[4];
-        sprintf( str_fd, "%d", pipe_fd[0] );
-
-        // execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
-        // execl( "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm", "-e", "./afficheur_message", str_fd, NULL );
-        // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--", "./afficheur_message", str_fd, NULL );
-        // perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
-        // exit( EXIT_FAILURE );
-        char command[356];
-        sprintf( command, "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm -e ./afficheur_message %d", pipe_fd[0] );
-        system( command );
-    }
-    else
+    // Création du pipe client_chat |> afficheur_message
+    const char * pipe_name = get_pipe_name();
+    if ( mkfifo( pipe_name, 0666 ) == -1 )
     {
-        close( pipe_fd[0] );
-
-
-        pthread_t recv_thread;
-        int recv_thread_args[ 2 ] = { sock, pipe_fd[1] };
-        if ( pthread_create(&recv_thread, NULL, transfererMessage, recv_thread_args) != 0 )
-        {
-            perror( "Erreur création thread receveur message" );
-        }
-
-
-        char message[ TAILLEBUF ];
-        while( !arret && (fgets( message, TAILLEBUF, stdin ) != NULL)  )
-        {
-            envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )                          
-
-            if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )    //      Gestion de la commande "/e" ou "/exit" côté client
-            {
-                leave( sock );
-                break;
-            }
-
-            memset( (char *)message, 0, sizeof(message) );                              //      On vide le buffer (message)
-            system( "clear" );
-        }
-
-        pthread_join( recv_thread, NULL );
-
-        close( pipe_fd[1] );                                                            //      Ferme le 'File Descriptor' côté écriture (1) du père après utilisation
-        wait( NULL );                                                                   //      Attend que le processus fils termine
+        perror( "Erreur lors de la création du tube nommé ( client_chat.c |> afficheur_message.c ) " );                      
     }
 
 
-    if ( pipe_fd[0] != -1 ) close( pipe_fd[0] );                                        // Fermeture des FD du pipe
-    if ( pipe_fd[1] != -1 ) close( pipe_fd[1] );
-    close( sock );                                                                      // Fermeture de la socket
+    char command[256];
+    snprintf( command, 256, "gnome-terminal -- ./afficheur_message %s", pipe_name ); 
+    system( command );                                                               // On lance le terminal avec le nom du pipe pour ouvrir l'afficheur_message
+
+    int pipe_fd = open( pipe_name, O_WRONLY );                                       // On ouvre le pipe en écriture uniquement côté client
+    if ( pipe_fd == -1 )
+    {
+        perror( "Erreur lors de l'ouverture du tube nommé côté écriture ( client_chat.c |> afficheur_message.c ) " );
+    }
+
+
+    // Création du thread de transfert des messages reçus du serveur vers l'afficheur_message
+    pthread_t recv_thread;
+    int recv_thread_args[ 2 ] = { sock, pipe_fd };
+    if ( pthread_create(&recv_thread, NULL, transfererMessage, recv_thread_args) != 0 ) 
+    {
+        perror( "Erreur création thread receveur message" );
+    }
+    
+
+
+    char message[ TAILLEBUF ];
+    while( !arret && (fgets( message, TAILLEBUF, stdin ) != NULL)  )
+    {
+        envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )                          
+
+        if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )    //      Gestion de la commande "/e" ou "/exit" côté client
+        {
+            leave( sock );
+            break;
+        }
+
+        memset( (char *)message, 0, sizeof(message) );                              //      On vide le buffer (message)
+        system( "clear" );
+    }
+
+
+    pthread_join( recv_thread, NULL );                                              // Fermeture du thread
+    close( pipe_fd );                                                               // Fermeture du pipe nommé
+    unlink( pipe_name );                                                            // Suppression du fichier pipe
+    close( sock );                                                                  // Fermeture de la socket
 
     return 0;
 }
+
+
+
+
+
+/*  
+    ================================================== 
+    Version pipe anonyme, marche uniquement avec xterm 
+    ================================================== 
+*/
+
+// int main( int argc, char **argv )
+// {
+//     // Vérification si le nombre de paramètres est valide
+//     if ( argc < 3 ) 
+//     {
+//         fprintf( stderr, "Nombre d'arguments insuffisants: %s <server_name> <port>\n", argv[0] );
+//         exit( EXIT_FAILURE );
+//     }
+
+    
+//     /* Gestionnaire de signaux */
+//     signal( SIGINT, arret_client );
+
+    
+//     printf( "%s    %d\n", argv[1], atoi(argv[2]) );
+//     int sock = connexion( argv[1], atoi(argv[2]) );                                 //      Il se connecte au serveur ( TCP avec communication.c )
+//     if ( sock < 0 )
+//     {
+//         fprintf( stderr, "Erreur lors de la connexion au serveur.\n" );
+//         return EXIT_FAILURE;
+//     }
+
+//     // Création du pipe client_chat |> afficheur_message
+//     int pipe_fd[ 2 ] = { -1, -1 };
+//     if ( pipe(pipe_fd) < 0 )
+//     {
+//         perror( "Erreur lors de la création du tube anonyme : " );
+//         exit( EXIT_FAILURE );
+//     }
+
+//     // Création d'un processus pour gérer le lancement de l'afficheur message    ET    le parent pour gérér la réception des messages via un thread, sinon l'envoi
+//     pid_t pid = fork();
+//     if ( pid < 0 )
+//     {
+//         perror( "Échec de création du processus afficheur_message : " );
+//         exit( EXIT_FAILURE );
+//     }
+//     else if ( pid == 0 )                                                            // Processus FILS: Réception des messages serveurs et transfert dans |> afficheur_message
+//     {
+//         close( pipe_fd[1] );                                                        //      Ferme le 'File Descriptor' côté écriture (1) du fils
+    
+//         char str_fd[4];
+//         sprintf( str_fd, "%d", pipe_fd[0] );
+
+//         // execl( "/usr/bin/xterm", "xterm", "-e", "./afficheur_message", str_fd, NULL );
+//         // execl( "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm", "-e", "./afficheur_message", str_fd, NULL );
+//         // execl( "/usr/bin/gnome-terminal", "gnome-terminal", "--", "./afficheur_message", str_fd, NULL );
+//         // perror( "Erreur d'exécution du terminal 'Afficheur Message' : " );
+//         // exit( EXIT_FAILURE );
+//         char command[356];
+//         sprintf( command, "$HOME/Documents/ProjetSDSE/dependencies/xterm-390_installed/bin/xterm -e ./afficheur_message %d", pipe_fd[0] );
+//         system( command );
+//     }
+//     else
+//     {
+//         close( pipe_fd[0] );
+
+
+//         pthread_t recv_thread;
+//         int recv_thread_args[ 2 ] = { sock, pipe_fd[1] };
+//         if ( pthread_create(&recv_thread, NULL, transfererMessage, recv_thread_args) != 0 )
+//         {
+//             perror( "Erreur création thread receveur message" );
+//         }
+
+
+//         char message[ TAILLEBUF ];
+//         while( !arret && (fgets( message, TAILLEBUF, stdin ) != NULL)  )
+//         {
+//             envoyerMessage( sock, message );                                            //      Envoi du message ( ou de la commande )                          
+
+//             if ( (strcmp(message, "/e\n") == 0) || strcmp(message, "/exit\n") == 0 )    //      Gestion de la commande "/e" ou "/exit" côté client
+//             {
+//                 leave( sock );
+//                 break;
+//             }
+
+//             memset( (char *)message, 0, sizeof(message) );                              //      On vide le buffer (message)
+//             system( "clear" );
+//         }
+
+//         pthread_join( recv_thread, NULL );
+
+//         close( pipe_fd[1] );                                                            //      Ferme le 'File Descriptor' côté écriture (1) du père après utilisation
+//         wait( NULL );                                                                   //      Attend que le processus fils termine
+//     }
+
+
+//     if ( pipe_fd[0] != -1 ) close( pipe_fd[0] );                                        // Fermeture des FD du pipe
+//     if ( pipe_fd[1] != -1 ) close( pipe_fd[1] );
+//     close( sock );                                                                      // Fermeture de la socket
+
+//     return 0;
+// }
