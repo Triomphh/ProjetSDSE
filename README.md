@@ -10,7 +10,6 @@ Il est recommandé de lire ce `README.md` sur le [GitHub du projet](https://gith
 La majeure partie du code est commentée de façon très explicite pour faciliter la compréhension.
 <br >
 <br >
-<br >
 
 
 
@@ -23,7 +22,6 @@ clear; gcc -o serveur main.c communication.c gestion_requete.c ../fonctions/cree
 ```
 clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c ../fonctions/creerSocketTCP.c -lpthread; ./client localhost 4009
 ```
-<br >
 <br >
 <br >
 
@@ -40,13 +38,13 @@ clear; gcc -o afficheur_message afficheur_message.c; gcc -o client client_chat.c
 puis dans le processus principal il s'occupe d'envoyer chaque chaîne de caractères qu'il reçoit dans son **_stdin_** <sub>(après avoir appuyé sur **[ENTRÉE]**)</sub> au serveur <sub>(`communication.c`)</sub>
 <br >
 <br >
-<br >
+
 
 ### `afficheur_message.c`
 Simple boucle qui lit le côté lecture de son pipe (nommé ou anonyme, voir la [section sur les pipes](#pipe-client_chatc--afficheur_messagec)) et affiche le contenu.
 <br >
 <br >
-<br >
+
 
 ### Pipe `client_chat.c` |> `afficheur_message.c`
 Deux structures possibles : 
@@ -57,7 +55,7 @@ Deux structures possibles :
      - Installer directement xTerm à l'aide de votre gestionnaire de packages
 <br >
 <br >
-<br >
+
 
 
 
@@ -69,7 +67,7 @@ Deux structures possibles :
 S'occupe de lancer les différents processus (**Communication** et **Gestion Requête**) et de les fermer correctement via un gestionnaire de signal (voir [partie Gestionnaire de signaux](#gestionnaire-de-signaux))
 <br >
 <br >
-<br >
+
 
 
 ### `communication.c`
@@ -88,7 +86,7 @@ _`traiter()`_ permet de lire les chaînes de caractères envoyées par le client
 _`traiter()`_ permet aussi de faire la différence entre un utilisateur connecté ou non, si celui-ci n'est pas connecté, il ne peut pas envoyer de message mais uniquement des commandes <sub>_(pour se connecter, créer un compte, etc...)_</sub>
 <br >
 <br >
-<br >
+
 
 
 ### `communication.c`
@@ -107,7 +105,7 @@ _`traiter()`_ permet aussi de faire la différence entre un utilisateur connect�
 ```
 <br >
 <br >
-<br >
+
 
 
 
@@ -116,7 +114,7 @@ _`traiter()`_ permet aussi de faire la différence entre un utilisateur connect�
 
 <br >
 <br >
-<br >
+
 
 
 ## Global
@@ -124,7 +122,7 @@ _`traiter()`_ permet aussi de faire la différence entre un utilisateur connect�
 Un gestionnaire de signal (SIGINT) a été créé pour arrêter proprement les différents processus, en sortant des boucles _"infinies"_ (ce qui permet déjà de fermer proprement les pipes et les sockets) mais aussi de supprimer les fichiers créés par les pipes nommés.  
 <br >
 <br >
-<br >
+
 
 
 ## Optionnel
