@@ -57,8 +57,42 @@ Deux structures possibles :
 
 ## Partie centralisée
 <sup>(Même architecture que celle du sujet)</sup>  
+
 ### `main.c`
 S'occupe de lancer les différents processus (**Communication** et **Gestion Requête**) et de les fermer correctement via un gestionnaire de signal (voir [partie Gestionnaire de signaux](#gestionnaire-de-signaux))
+
+
+### `communication.c`
+- `communication.c` communique avec `client_chat.c` via un socket TCP
+- `communication.c` communique avec `gestion_requete.c` via un pipe nommé <sub>(`request_pipe`)</sub>  
+<br >
+
+`communication.c` créé un esocket TCP d'écoute et attends la connexion de clients sur celle-ci.  
+Si un client se connecte sur cette socket, on ouvre une socket de service pour le client et on lui créé un processus propre à lui qui va _`traiter()`_ la communication avec lui.  
+<br >  
+
+_`traiter()`_ permet de lire les chaînes de caractères envoyées par le client et de les différencier selon leur contenu : 
+- si elle commence par un '**/**', c'est une commande qui sera envoyé à `gestion_requete.c` via le pipe,
+- sinon, c'est un message qui est destiné à être envoyé aux autres utilisateurs
+ 
+_`traiter()`_ permet aussi de faire la différence entre un utilisateur connecté ou non, si celui-ci n'est pas connecté, il ne peut pas envoyer de message mais uniquement des commandes <sub>_(pour se connecter, créer un compte, etc...)_</sub>
+
+
+### `communication.c`
+- `gestion_requete.c` communique avec `communication.c` via un pipe nommé <sub>(`response_pipe`)</sub>
+<br >
+
+`gestion_requete.c` permet d'effectuer diverses actions en fonction de la commande reçue
+```
+// === Gestion des commandes "/..." ===
+//      Connexion                           : /c  ,        , /connect   { nom, mdp }
+//      Déconnexion                         :
+//      Afficher la liste des utilisateurs  : /l  , /list , /liste
+//      Créer un compte                     : /cr ,       , /create     { nom, mdp }
+//      Supprimer un compte                 : /d  , /del  , /delete     { nom, mdp }
+```
+
+
 
 
 
