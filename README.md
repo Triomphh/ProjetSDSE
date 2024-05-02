@@ -58,7 +58,7 @@ Deux structures possibles :
 ## Partie centralisée
 <sup>(Même architecture que celle du sujet)</sup>  
 ### `main.c`
-S'occupe de lancer les différents processus (**Communication** et **Gestion Requête**) et de les fermer correctement via un gestionnaire de signal (voir [partie Gestionnaire de signaux](#Gestionnaire_de_signaux))
+S'occupe de lancer les différents processus (**Communication** et **Gestion Requête**) et de les fermer correctement via un gestionnaire de signal (voir [partie Gestionnaire de signaux](#gestionnaire-de-signaux))
 
 
 
