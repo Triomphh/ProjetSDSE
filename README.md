@@ -112,9 +112,22 @@ _`traiter()`_ permet aussi de faire la différence entre un utilisateur connect�
 
 ## Partie Java
 
+### `Client.java`
+Permet le lancement d'un client distant à l'aide de java RMI. Il sert aussi de serveur au fichier **Gestion Requête** afin de recevoir les demandes des clients via un socket UDP.
 <br >
 <br >
 
+### `Serveur.java`
+Partie Serveur du RMI, c'est sur ce fichier (et donc la machine qui l'héberge) que sont réalisées les opérations demandées par le client.
+<br >
+<br >
+
+Pour des raisons de lisibiité, les sources ont été séparées des éxécutables.
+
+### `GestionCompte.java`
+C'est ici que sont implémentées les fonctions définies dans le fichier ICompte.java
+<br >
+<br >
 
 
 ## Global
