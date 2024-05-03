@@ -42,7 +42,7 @@ int main( int argc, char **argv )
     
     printf( "%d\n", atoi(argv[1]) );
 
-
+    system("gnome-terminal -- java -cp ../partie_rmi/executable/ Client");
     
     /* Processus Communication */
     pid_t pid = fork();

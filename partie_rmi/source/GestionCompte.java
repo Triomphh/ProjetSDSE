@@ -16,7 +16,6 @@ public class GestionCompte implements ICompte {
             while((line = br.readLine()) != null) {
                 String[] values = line.split(",");
                 if(Objects.equals(values[0], pseudo)) {
-                    System.out.println(values[1]);
                     pseudo_existe = true;
                 }
             }
@@ -65,12 +64,24 @@ public class GestionCompte implements ICompte {
         // } catch (Exception e) {
         //     e.printStackTrace();
         // }
-        System.out.println("impossible de supprimer un compte pour le moment");
-        return(false);
+        return false;
     }
 
     public boolean connexion(String pseudo, String mdp) throws RemoteException {
-        System.out.println("impossible de se connecter pour le moment");
+        try {
+            String line = "";
+            BufferedReader br = new BufferedReader(new FileReader("../comptes.csv"));
+            while((line = br.readLine()) != null) {
+                String[] values = line.split(",");
+                if(Objects.equals(values[0], pseudo)) {
+                    return(true);
+                }
+            }
+            return false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return(false);
     }
 }

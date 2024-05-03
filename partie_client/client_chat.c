@@ -75,12 +75,21 @@ int connexion( char *nom_serveur, int port )
 // Fonction permettant d'envoyer un message sur le serveur connecté
 void envoyerMessage( int sock, char* msg )                                                                      // Une fois connecté on communique avec le serveur, grâce à la socket
 {
-    if ( send(sock, msg, strlen(msg), 0) < 0 )
-    {
-        perror( "Erreur lors de l'envoi du message client->serveur" );
-        // close( sock );
-        // exit( EXIT_FAILURE );
+
+    send(sock, msg, strlen(msg), 0);
+    if(msg[0] == '/'){
+        int nb_octets;
+        char reponse[TAILLEBUF];
+        nb_octets = read(sock, reponse, TAILLEBUF);
+        printf("%s",reponse);
+        memset( reponse, 0, TAILLEBUF );
     }
+//     if ( send(sock, msg, strlen(msg), 0) < 0 )
+//     {
+//         perror( "Erreur lors de l'envoi du message client->serveur" );
+//         // close( sock );
+//         // exit( EXIT_FAILURE );
+//     }
 }
 
 void * transfererMessage( void * args ) 
@@ -96,6 +105,7 @@ void * transfererMessage( void * args )
         nbytes = recv( sock, buffer, TAILLEBUF - 1, 0 );                                //    On attend un message du serveur ( TAILLEBUF - 1 pour stocker le '\0' )
         if ( nbytes > 0 )
         {
+            
             buffer[ nbytes ] = '\0';                                                    // On "termine"/"coupe" la chaîne de char.
             write( pipe_fd_in, buffer, nbytes );
         }
@@ -199,7 +209,6 @@ int main( int argc, char **argv )
         }
 
         memset( (char *)message, 0, sizeof(message) );                              //      On vide le buffer (message)
-        system( "clear" );
     }
 
 

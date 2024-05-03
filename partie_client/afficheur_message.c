@@ -35,8 +35,9 @@ int main( int argc, char **argv )
 	{
         if ( read(pipe_fd, message, TAILLEBUF) > 0 )
         {
+            if(message[0]!='/'){
             printf("%s", message);                                  //      On affiche le message
-            memset( (char *)message, 0, sizeof(message) );          //      On clear le buffer pour ne pas créer des "résidus" sur les messages suivants
+            memset( (char *)message, 0, sizeof(message) ); }         //      On clear le buffer pour ne pas créer des "résidus" sur les messages suivants
         }
         else
         {

@@ -64,12 +64,13 @@ void traiter( int socket_service )
 
     char buffer[ TAILLEBUF ];
     User user = {0};                                                                                // Initialise la structure User à vide, en attendant une connexion valide
-    ssize_t nbytes;                                                                                 // Compteur de bytes reçus (pour recv)
-
+    ssize_t nbytes;   
+    int nb_octets;                                                                              // Compteur de bytes reçus (pour recv)
+    char reponse[TAILLEBUF];
 
 
     int request_pipe_fd = open( REQUEST_PIPE, O_WRONLY | O_NONBLOCK );                              // Ouverture du pipe en lecture et O_NONBLOCK car il s'ouvre plus tard que dans gestion_requete.c
-    // int response_pipe_fd = open( RESPONSE_PIPE, O_RDONLY );
+    int response_pipe_fd = open( RESPONSE_PIPE, O_RDONLY );
     if ( request_pipe_fd == -1  /*||  response_pipe_fd == -1*/ )
         perror( "Erreur lors de l'ouverture du tube de communication ( communication.c | gestionRequete.c ) " );
 
@@ -91,8 +92,10 @@ void traiter( int socket_service )
                 strncpy( cmd.command, buffer, sizeof(cmd.command) - 1 );
 
                 printf( "COMMUNICATION   :    Commande reçue de %s : %s", user.username, buffer );
-                write( request_pipe_fd, &cmd, sizeof(cmd) );                                        //          On transmet l'adresse mémoire de la commande à gestion_requete
-
+                write( request_pipe_fd, &cmd, sizeof(cmd) );
+                nb_octets = read(response_pipe_fd, reponse, TAILLEBUF);
+                write(socket_service, reponse, TAILLEBUF);                                     //          On transmet l'adresse mémoire de la commande à gestion_requete
+        
                 // char response[ TAILLEBUF ];
                 // if ( read(response_pipe_fd, response, sizeof(response)) > 0 )
                 // {
@@ -116,7 +119,7 @@ void traiter( int socket_service )
 
     }
 
-
+    close ( response_pipe_fd );
     close( request_pipe_fd );
     // close( response_pipe_fd );
     close( socket_service );                                                                        // On ferme la socket associée au client
